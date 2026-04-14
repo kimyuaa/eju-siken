@@ -3244,6 +3244,38 @@ function restartAllReading() {
   window.location.href = "./exam.html?i=0";
 }
 
+/**
+ * Gemini report API URL.
+ * - Local: page not on port 8787 -> http://127.0.0.1:8787/api/report .
+ * - Deploy (monolith): open app on same host as server -> same-origin /api/report .
+ * - GitHub Pages only: set window.__REPORT_API_URL__ in api-config.js .
+ */
+function getReportApiEndpoint() {
+  if (typeof window === "undefined") return "http://127.0.0.1:8787/api/report";
+  const override = window.__REPORT_API_URL__;
+  if (typeof override === "string" && override.trim()) {
+    let u = override.trim().replace(/\/+$/, "");
+    if (!/\/api\/report$/i.test(u)) u = `${u}/api/report`;
+    return u;
+  }
+  const loc = window.location;
+  if (loc.protocol === "file:" || !loc.hostname) return "http://127.0.0.1:8787/api/report";
+
+  const isLocal = loc.hostname === "localhost" || loc.hostname === "127.0.0.1";
+  const port = loc.port || "";
+  if (isLocal && port && port !== "8787") return "http://127.0.0.1:8787/api/report";
+  if (isLocal && !port && loc.protocol === "http:") return "http://127.0.0.1:8787/api/report";
+
+  if (loc.hostname.endsWith(".github.io")) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "EJU: On GitHub Pages set window.__REPORT_API_URL__ in api-config.js, or open your deployed app URL that serves static files and /api.",
+    );
+  }
+
+  return `${loc.origin}/api/report`;
+}
+
 function finishExam() {
   const isLast = currentPassageIdx >= EXAM.passages.length - 1;
   if (!isLast) {
@@ -3412,7 +3444,7 @@ function renderResultPage() {
       if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
       const seed = nextReportSeed();
       const ctx = buildCtx();
-      const resp = await fetch("http://127.0.0.1:8787/api/report", {
+      const resp = await fetch(getReportApiEndpoint(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ context: ctx, seed, locale: "ko" }),

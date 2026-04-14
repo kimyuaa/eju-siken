@@ -1,0 +1,9 @@
+.git
+.gitignore
+**/.env
+server/.env
+**/node_modules
+.DS_Store
+.cursor
+*.md
+!README.md
