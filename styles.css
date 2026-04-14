@@ -1635,6 +1635,7 @@ a.btn {
   /* Charts and report should not clip */
   .chartV,
   #finalReport,
+  #reportOut,
   .report {
     break-inside: auto;
     page-break-inside: auto;

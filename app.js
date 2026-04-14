@@ -1496,6 +1496,111 @@ const SKILL_ORDER = [
   "기타",
 ];
 
+function computeReadingAnalytics(readingResults) {
+  const r = readingResults && typeof readingResults === "object" ? readingResults : getReadingResults();
+  const rows = Object.entries(r.byPassageId || {})
+    .map(([pid, v]) => ({ pid, ...v }))
+    .sort((a, b) => a.passageIdx - b.passageIdx);
+
+  const totalQ = rows.reduce((s, x) => s + (x.total || 0), 0);
+  const correctQ = rows.reduce((s, x) => s + (x.correct || 0), 0);
+  const pct = totalQ ? Math.round((correctQ / totalQ) * 100) : 0;
+
+  // skill accuracy (always show all buckets)
+  const skillMap = {};
+  SKILL_ORDER.forEach((k) => {
+    skillMap[k] = { correct: 0, total: 0 };
+  });
+  rows.forEach((p) => {
+    (p.qResults || []).forEach((qr) => {
+      const t = SKILL_ORDER.includes(qr.type) ? qr.type : "기타";
+      skillMap[t].total += 1;
+      if (qr.ok) skillMap[t].correct += 1;
+    });
+  });
+  const skillRows = SKILL_ORDER.map((t) => {
+    const v = skillMap[t] || { correct: 0, total: 0 };
+    const pct2 = v.total ? Math.round((v.correct / v.total) * 100) : 0;
+    return { t, ...v, pct: pct2 };
+  });
+
+  // topic accuracy (always show all buckets)
+  const topicMap = {};
+  TOPIC_ORDER.forEach((k) => {
+    topicMap[k] = { correct: 0, total: 0 };
+  });
+  rows.forEach((p) => {
+    const topic = TOPIC_ORDER.includes(p.topic) ? p.topic : "기타";
+    topicMap[topic].correct += p.correct || 0;
+    topicMap[topic].total += p.total || 0;
+  });
+  const topicRows = TOPIC_ORDER.map((t) => {
+    const v = topicMap[t] || { correct: 0, total: 0 };
+    const pct2 = v.total ? Math.round((v.correct / v.total) * 100) : 0;
+    return { t, ...v, pct: pct2 };
+  });
+
+  const weakestSkill = skillRows
+    .filter((x) => x.total > 0)
+    .slice()
+    .sort((a, b) => a.pct - b.pct)[0];
+  const weakestTopic = topicRows
+    .filter((x) => x.total > 0)
+    .slice()
+    .sort((a, b) => a.pct - b.pct)[0];
+
+  const bestTopic = topicRows
+    .filter((x) => x.total > 0)
+    .slice()
+    .sort((a, b) => b.pct - a.pct)[0];
+  const bestSkill = skillRows
+    .filter((x) => x.total > 0)
+    .slice()
+    .sort((a, b) => b.pct - a.pct)[0];
+
+  const weakSkillTop = skillRows
+    .filter((x) => x.total > 0)
+    .slice()
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 3);
+  const weakTopicTop = topicRows
+    .filter((x) => x.total > 0)
+    .slice()
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 2);
+
+  const fSkills = weakSkillTop.length ? weakSkillTop.map((x) => x.t) : ["필자 주장/의도", "내용 일치"];
+  const fTopics = weakTopicTop.length ? weakTopicTop.map((x) => x.t) : ["과학/논설"];
+
+  return {
+    r,
+    rows,
+    totalQ,
+    correctQ,
+    pct,
+    skillRows,
+    topicRows,
+    weakestSkill,
+    weakestTopic,
+    bestTopic,
+    bestSkill,
+    weakSkillTop,
+    weakTopicTop,
+    fSkills,
+    fTopics,
+  };
+}
+
+function nextReportSeed(readingResults) {
+  const rr = readingResults && typeof readingResults === "object" ? readingResults : getReadingResults();
+  const user = getUserLabel();
+  const updatedAt = Number(rr.updatedAt || 0) >>> 0;
+  const noise = (Math.floor(Math.random() * 0xffffffff) ^ (Date.now() & 0xffffffff)) >>> 0;
+  const seed = (noise ^ ((user.length + 17) * 2654435761) ^ updatedAt) >>> 0;
+  localStorage.setItem(STORAGE.reportSeed, String(seed));
+  return seed >>> 0;
+}
+
 function friendlyPlanFor(topics = []) {
   const t = new Set(topics.filter(Boolean));
   /** @type {Array<{ title: string, why: string, picks: Array<{ name: string, platform: string, url: string }>, queries: string[], tips: string[] }>} */
@@ -3163,13 +3268,18 @@ function renderResultPage() {
   if (!statsEl || !weakEl || !topicEl || !skillEl) return;
 
   const r = getReadingResults();
-  const rows = Object.entries(r.byPassageId)
-    .map(([pid, v]) => ({ pid, ...v }))
-    .sort((a, b) => a.passageIdx - b.passageIdx);
-
-  const totalQ = rows.reduce((s, x) => s + (x.total || 0), 0);
-  const correctQ = rows.reduce((s, x) => s + (x.correct || 0), 0);
-  const pct = totalQ ? Math.round((correctQ / totalQ) * 100) : 0;
+  const {
+    rows,
+    totalQ,
+    correctQ,
+    pct,
+    skillRows,
+    topicRows,
+    weakestSkill,
+    weakestTopic,
+    fSkills,
+    fTopics,
+  } = computeReadingAnalytics(r);
 
   const makeStat = (k, v, d, pct2) => `
     <div class="stat">
@@ -3191,48 +3301,6 @@ function renderResultPage() {
     makeStat("최근 기록", rows[rows.length - 1] ? `${rows[rows.length - 1].label}` : "—", rows[rows.length - 1] ? formatShortDate(rows[rows.length - 1].ts) : "—", 100),
   ].join("");
 
-  // skill accuracy (always show all buckets)
-  const skillMap = {};
-  SKILL_ORDER.forEach((k) => {
-    skillMap[k] = { correct: 0, total: 0 };
-  });
-  rows.forEach((p) => {
-    (p.qResults || []).forEach((qr) => {
-      const t = SKILL_ORDER.includes(qr.type) ? qr.type : "기타";
-      skillMap[t].total += 1;
-      if (qr.ok) skillMap[t].correct += 1;
-    });
-  });
-  const skillRows = SKILL_ORDER.map((t) => {
-    const v = skillMap[t] || { correct: 0, total: 0 };
-    const pct2 = v.total ? Math.round((v.correct / v.total) * 100) : 0;
-    return { t, ...v, pct: pct2 };
-  });
-
-  // topic accuracy (always show all buckets)
-  const topicMap = {};
-  TOPIC_ORDER.forEach((k) => {
-    topicMap[k] = { correct: 0, total: 0 };
-  });
-  rows.forEach((p) => {
-    const topic = TOPIC_ORDER.includes(p.topic) ? p.topic : "기타";
-    topicMap[topic].correct += p.correct || 0;
-    topicMap[topic].total += p.total || 0;
-  });
-  const topicRows = TOPIC_ORDER.map((t) => {
-    const v = topicMap[t] || { correct: 0, total: 0 };
-    const pct2 = v.total ? Math.round((v.correct / v.total) * 100) : 0;
-    return { t, ...v, pct: pct2 };
-  });
-
-  const weakestSkill = skillRows
-    .filter((x) => x.total > 0)
-    .slice()
-    .sort((a, b) => a.pct - b.pct)[0];
-  const weakestTopic = topicRows
-    .filter((x) => x.total > 0)
-    .slice()
-    .sort((a, b) => a.pct - b.pct)[0];
 
   weakEl.innerHTML = `
     <div class="kv"><div class="kv__k">약한 문항 유형</div><div class="kv__v">${escapeHtml(weakestSkill ? `${weakestSkill.t} (${weakestSkill.correct}/${weakestSkill.total}, ${weakestSkill.pct}%)` : "—")}</div></div>
@@ -3258,277 +3326,250 @@ function renderResultPage() {
 
   topicEl.innerHTML = topicRows.length ? chartRows(topicRows) : `<div class="hint muted">아직 데이터가 없습니다.</div>`;
   skillEl.innerHTML = skillRows.length ? chartRows(skillRows) : `<div class="hint muted">아직 데이터가 없습니다.</div>`;
+  const reportHost = document.querySelector("#finalReport");
+  if (!reportHost) return;
 
-  const reportEl = document.querySelector("#finalReport");
-  if (reportEl) {
-    const donePassages = rows.length;
-    const totalPassages = EXAM.passages.length;
-    const finishedPct = Math.round((donePassages / Math.max(1, totalPassages)) * 100);
-
-    const bestTopic = topicRows
-      .filter((x) => x.total > 0)
-      .slice()
-      .sort((a, b) => b.pct - a.pct)[0];
-    const bestSkill = skillRows
-      .filter((x) => x.total > 0)
-      .slice()
-      .sort((a, b) => b.pct - a.pct)[0];
-
-    const weakTopicText = weakestTopic ? `${weakestTopic.t} (${weakestTopic.correct}/${weakestTopic.total}, ${weakestTopic.pct}%)` : "—";
-    const weakSkillText = weakestSkill ? `${weakestSkill.t} (${weakestSkill.correct}/${weakestSkill.total}, ${weakestSkill.pct}%)` : "—";
-    const bestTopicText = bestTopic ? `${bestTopic.t} (${bestTopic.correct}/${bestTopic.total}, ${bestTopic.pct}%)` : "—";
-    const bestSkillText = bestSkill ? `${bestSkill.t} (${bestSkill.correct}/${bestSkill.total}, ${bestSkill.pct}%)` : "—";
-
-    const weakSkillTop = skillRows
-      .filter((x) => x.total > 0)
-      .slice()
-      .sort((a, b) => a.pct - b.pct)
-      .slice(0, 3);
-    const weakTopicTop = topicRows
-      .filter((x) => x.total > 0)
-      .slice()
-      .sort((a, b) => a.pct - b.pct)
-      .slice(0, 2);
-
-    const fSkills = weakSkillTop.length ? weakSkillTop.map((x) => x.t) : ["필자 주장/의도", "내용 일치"];
-    const fTopics = weakTopicTop.length ? weakTopicTop.map((x) => x.t) : ["과학/논설"];
-    const friendly = friendlyPlanFor(fTopics);
-    const study = studyPlanFor(fSkills, fTopics);
-
-    const ctx = buildReportContextForPrompt({
-      rows,
-      skillRows,
-      topicRows,
-      weakestSkill,
-      weakestTopic,
-      fSkills,
-      fTopics,
-      totalQ,
-      correctQ,
-      pct,
-    });
-
-    const seedRaw = localStorage.getItem(STORAGE.reportSeed) || "";
-    const seedStored = Number(seedRaw);
-    const seed =
-      Number.isFinite(seedStored) && seedStored > 0
-        ? (seedStored >>> 0)
-        : (((Date.now() & 0xffffffff) ^ ((String(ctx.user).length + 3) * 2246822519) ^ (r.updatedAt || 0)) >>> 0);
-
-    // Report should start on button click (no auto-run).
-    const loading = document.querySelector("#reportLoading");
-    const progBox = document.querySelector("#reportProgress");
-    const progPct = document.querySelector("#reportProgressPct");
-    const progSub = document.querySelector("#reportProgressSub");
-    const progBar = document.querySelector("#reportProgressBar");
-    const statusEl = document.querySelector("#reportStatus");
-    const btnAi = document.querySelector("#btnStartAiReport");
-    const btnLocal = document.querySelector("#btnStartLocalReport");
-    let running = false;
-
-    const setProg = (pct2, sub) => {
-      const p = Math.max(0, Math.min(100, Math.round(pct2)));
-      if (progPct) progPct.textContent = `${p}%`;
-      if (progSub) progSub.textContent = sub || "";
-      if (progBar) progBar.style.width = `${p}%`;
-    };
-
-    const startFakeProgress = () => {
-      if (!progBox) return () => {};
-      progBox.hidden = false;
-      const t0 = Date.now();
-      const phases = [
-        { at: 0, pct: 8, sub: "기록 요약을 정리한다." },
-        { at: 2500, pct: 22, sub: "약점/오답 패턴을 추출한다." },
-        { at: 6500, pct: 45, sub: "콘텐츠/검색 링크 후보를 수집한다." },
-        { at: 12000, pct: 68, sub: "학습플랜(콘텐츠/실전 독해)을 작성한다." },
-        { at: 18000, pct: 82, sub: "체크리스트(왜/어떻게)를 보강한다." },
-        { at: 24000, pct: 92, sub: "문장 톤/형식을 점검한다." },
-      ];
-      setProg(0, "준비 중…");
-      const timer = window.setInterval(() => {
-        const dt = Date.now() - t0;
-        let pct3 = 6;
-        let sub = "리포트를 생성 중이다.";
-        for (const ph of phases) {
-          if (dt >= ph.at) {
-            pct3 = ph.pct;
-            sub = ph.sub;
-          }
-        }
-        // Slow drift but never reach 100% until done.
-        const drift = Math.min(6, Math.floor(dt / 9000));
-        setProg(Math.min(97, pct3 + drift), sub);
-      }, 250);
-      return () => window.clearInterval(timer);
-    };
-
-    const tryAi = async () => {
-      if (loading) loading.hidden = false;
-      const stopProg = startFakeProgress();
-      try {
-        running = true;
-        if (btnAi) btnAi.disabled = true;
-        if (btnLocal) btnLocal.disabled = true;
-        if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
-        const resp = await fetch("http://127.0.0.1:8787/api/report", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ context: ctx, seed, locale: "ko" }),
-        });
-        if (!resp.ok) {
-          let extra = "";
-          let retryAfterSec;
-          try {
-            const j = await resp.json();
-            if (j && j.error) extra = ` · ${String(j.error).slice(0, 140)}`;
-            if (Number.isFinite(Number(j?.retryAfterSec))) retryAfterSec = Number(j.retryAfterSec);
-          } catch {
-            // ignore
-          }
-          if (resp.status === 429) {
-            const wait = retryAfterSec || 20;
-            throw new Error(`ai server 429 (요청 제한). ${wait}초 후 재시도`);
-          }
-          throw new Error(`ai server ${resp.status}${extra}`);
-        }
-        const data = await resp.json();
-        if (data && data.report && typeof data.report === "object") {
-          const r2 = data.report;
-          const safeLinks = (arr) =>
-            Array.isArray(arr)
-              ? arr
-                  .filter((x) => x && typeof x === "object" && typeof x.url === "string" && typeof x.title === "string")
-                  .map((x) => ({ title: x.title, url: x.url }))
-              : [];
-
-          const contentPlan = Array.isArray(r2.contentPlan) ? r2.contentPlan : [];
-          const studyItems = Array.isArray(r2.studyPlan2) ? r2.studyPlan2 : [];
-
-          reportEl.innerHTML = `
-            <div class="report">
-              <div class="report__t">요약</div>
-              <div class="report__p">${escapeHtml((Array.isArray(r2.summaryLines) ? r2.summaryLines : []).join("\n")).replaceAll("\n", "<br>")}</div>
-              <ul class="report__list">
-                <li><strong>총점</strong>: ${escapeHtml(r2.stats?.scoreText || "-")}</li>
-                <li><strong>정답률</strong>: ${escapeHtml(r2.stats?.accuracyText || "-")}</li>
-                <li><strong>완료 세트</strong>: ${escapeHtml(r2.stats?.doneText || "-")}</li>
-                <li><strong>우선 복습(유형)</strong>: ${escapeHtml(r2.stats?.focusSkillText || "-")}</li>
-                <li><strong>우선 복습(주제)</strong>: ${escapeHtml(r2.stats?.focusTopicText || "-")}</li>
-              </ul>
-
-              <div class="report__t" style="margin-top:10px;">약점 진단</div>
-              <ul class="report__list">
-                ${(Array.isArray(r2.weaknessBullets) ? r2.weaknessBullets : []).map((x) => `<li>${escapeHtml(String(x))}</li>`).join("")}
-              </ul>
-
-              <div class="report__t" style="margin-top:10px;">오답 요약(최근)</div>
-              <ul class="report__list">
-                ${(Array.isArray(r2.mistakeBullets) ? r2.mistakeBullets : []).map((x) => `<li>${escapeHtml(String(x))}</li>`).join("")}
-              </ul>
-
-              <div class="report__t" style="margin-top:10px;">바로 실행 체크리스트</div>
-              <ul class="report__list">
-                ${(() => {
-                  const items = Array.isArray(r2.checklistItems) ? r2.checklistItems : [];
-                  if (items.length) {
-                    return items
-                      .slice(0, 10)
-                      .map(
-                        (it) => `<li><strong>${escapeHtml(String(it?.title || "-"))}</strong>
-                          <ul>
-                            <li><strong>왜</strong>: ${escapeHtml(String(it?.why || "-"))}</li>
-                            <li><strong>어떻게</strong>: ${escapeHtml(String(it?.how || "-"))}</li>
-                          </ul>
-                        </li>`,
-                      )
-                      .join("");
-                  }
-                  // Backward compatibility (older server payload)
-                  const legacy = Array.isArray(r2.checklist) ? r2.checklist : [];
-                  return legacy.slice(0, 6).map((x) => `<li>${escapeHtml(String(x))}</li>`).join("");
-                })()}
-              </ul>
-
-              <div class="report__t" style="margin-top:10px;">콘텐츠 접근 학습플랜 1</div>
-              <ul class="report__list">
-                ${contentPlan
-                  .map((p) => {
-                    const links = safeLinks(p.links);
-                    const queries = Array.isArray(p.queries) ? p.queries : [];
-                    return `<li><strong>${escapeHtml(p.title || "-")}</strong>
-                      <ul>
-                        <li><strong>부족한 이유</strong>: ${escapeHtml(p.reason || "-")}</li>
-                        <li><strong>부족한 내용 채우는 방법</strong>: ${escapeHtml(p.method || "-")}</li>
-                        <li><strong>링크 추천 이유</strong>: ${escapeHtml(p.linkWhy || "-")}</li>
-                        <li><strong>링크</strong>:
-                          ${links
-                            .slice(0, 12)
-                            .map((l) => `<a href="${escapeHtml(l.url)}" target="_blank" rel="noreferrer">${escapeHtml(l.title)}</a>`)
-                            .join(" · ") || "-"}
-                        </li>
-                        <li><strong>검색어</strong>: ${queries.slice(0, 10).map((q) => `<code>${escapeHtml(String(q))}</code>`).join(" · ") || "-"}</li>
-                      </ul>
-                    </li>`;
-                  })
-                  .join("")}
-              </ul>
-
-              <div class="report__t" style="margin-top:10px;">실전 독해 학습플랜 2</div>
-              <ul class="report__list">
-                ${studyItems
-                  .slice(0, 10)
-                  .map((it) => {
-                    const tips = Array.isArray(it?.tips) ? it.tips : [];
-                    const ex = Array.isArray(it?.examples) ? it.examples : [];
-                    return `<li><strong>${escapeHtml(String(it?.title || "-"))}</strong>: ${escapeHtml(String(it?.body || "-"))}
-                      <ul>
-                        ${tips.slice(0, 6).map((t) => `<li>${escapeHtml(String(t))}</li>`).join("")}
-                        ${ex
-                          .slice(0, 6)
-                          .map(
-                            (e) =>
-                              `<li><span class="jp">${escapeHtml(String(e?.jp || ""))}</span><div class="muted" style="margin-top:4px;">${escapeHtml(
-                                String(e?.ko || ""),
-                              )}</div></li>`,
-                          )
-                          .join("")}
-                      </ul>
-                    </li>`;
-                  })
-                  .join("")}
-              </ul>
-            </div>
-          `;
-          setProg(100, "완료");
-          if (statusEl) statusEl.textContent = "제미나이 리포트 생성 완료.";
-          return;
-        }
-        throw new Error("bad ai payload");
-      } catch (e) {
-        if (statusEl) statusEl.textContent = `제미나이 실패: ${String(e?.message || e)} (로컬 버튼으로 대체 가능)`;
-      } finally {
-        stopProg();
-        if (loading) loading.hidden = true;
-        if (progBox) progBox.hidden = true;
-        running = false;
-        if (btnAi) btnAi.disabled = false;
-        if (btnLocal) btnLocal.disabled = false;
-      }
-    };
-
-    const runLocal = () => {
-      if (running) return;
-      reportEl.innerHTML = buildFinalReportHtml(ctx, seed);
-      if (statusEl) statusEl.textContent = "로컬 리포트 생성 완료.";
-    };
-
-    if (btnAi) btnAi.addEventListener("click", tryAi);
-    if (btnLocal) btnLocal.addEventListener("click", runLocal);
-    if (statusEl) statusEl.textContent = "분석 버튼을 누르면 리포트가 생성된다.";
+  let reportOut = document.querySelector("#reportOut");
+  if (!reportOut) {
+    reportOut = document.createElement("div");
+    reportOut.id = "reportOut";
+    reportOut.className = "reportOut";
+    reportHost.appendChild(reportOut);
   }
-}
 
+  const buildCtx = () => {
+    const a = computeReadingAnalytics(getReadingResults());
+    return buildReportContextForPrompt({
+      rows: a.rows,
+      skillRows: a.skillRows,
+      topicRows: a.topicRows,
+      weakestSkill: a.weakestSkill,
+      weakestTopic: a.weakestTopic,
+      fSkills: a.fSkills,
+      fTopics: a.fTopics,
+      totalQ: a.totalQ,
+      correctQ: a.correctQ,
+      pct: a.pct,
+    });
+  };
+
+  // Report should start on button click (no auto-run).
+  const loading = document.querySelector("#reportLoading");
+  const progBox = document.querySelector("#reportProgress");
+  const progPct = document.querySelector("#reportProgressPct");
+  const progSub = document.querySelector("#reportProgressSub");
+  const progBar = document.querySelector("#reportProgressBar");
+  const statusEl = document.querySelector("#reportStatus");
+  const btnAi = document.querySelector("#btnStartAiReport");
+  const btnLocal = document.querySelector("#btnStartLocalReport");
+  let running = false;
+
+  const setProg = (pct2, sub) => {
+    const p = Math.max(0, Math.min(100, Math.round(pct2)));
+    if (progPct) progPct.textContent = `${p}%`;
+    if (progSub) progSub.textContent = sub || "";
+    if (progBar) progBar.style.width = `${p}%`;
+  };
+
+  const startFakeProgress = () => {
+    if (!progBox) return () => {};
+    progBox.hidden = false;
+    const t0 = Date.now();
+    const phases = [
+      { at: 0, pct: 8, sub: "기록 요약을 정리한다." },
+      { at: 2500, pct: 22, sub: "약점/오답 패턴을 추출한다." },
+      { at: 6500, pct: 45, sub: "콘텐츠/검색 링크 후보를 수집한다." },
+      { at: 12000, pct: 68, sub: "학습플랜(콘텐츠/실전 독해)을 작성한다." },
+      { at: 18000, pct: 82, sub: "체크리스트(왜/어떻게)를 보강한다." },
+      { at: 24000, pct: 92, sub: "문장 톤/형식을 점검한다." },
+    ];
+    setProg(0, "준비 중…");
+    const timer = window.setInterval(() => {
+      const dt = Date.now() - t0;
+      let pct3 = 6;
+      let sub = "리포트를 생성 중이다.";
+      for (const ph of phases) {
+        if (dt >= ph.at) {
+          pct3 = ph.pct;
+          sub = ph.sub;
+        }
+      }
+      // Slow drift but never reach 100% until done.
+      const drift = Math.min(6, Math.floor(dt / 9000));
+      setProg(Math.min(97, pct3 + drift), sub);
+    }, 250);
+    return () => window.clearInterval(timer);
+  };
+
+
+  const tryAi = async () => {
+    if (loading) loading.hidden = false;
+    const stopProg = startFakeProgress();
+    try {
+      running = true;
+      if (btnAi) btnAi.disabled = true;
+      if (btnLocal) btnLocal.disabled = true;
+      if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
+      const seed = nextReportSeed();
+      const ctx = buildCtx();
+      const resp = await fetch("http://127.0.0.1:8787/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ context: ctx, seed, locale: "ko" }),
+      });
+      if (!resp.ok) {
+        let extra = "";
+        let retryAfterSec;
+        try {
+          const j = await resp.json();
+          if (j && j.error) extra = ` · ${String(j.error).slice(0, 140)}`;
+          if (Number.isFinite(Number(j?.retryAfterSec))) retryAfterSec = Number(j.retryAfterSec);
+        } catch {
+          // ignore
+        }
+        if (resp.status === 429) {
+          const wait = retryAfterSec || 20;
+          throw new Error(`ai server 429 (요청 제한). ${wait}초 후 재시도`);
+        }
+        throw new Error(`ai server ${resp.status}${extra}`);
+      }
+      const data = await resp.json();
+      if (data && data.report && typeof data.report === "object") {
+        const r2 = data.report;
+        const safeLinks = (arr) =>
+          Array.isArray(arr)
+            ? arr
+                .filter((x) => x && typeof x === "object" && typeof x.url === "string" && typeof x.title === "string")
+                .map((x) => ({ title: x.title, url: x.url }))
+            : [];
+
+        const contentPlan = Array.isArray(r2.contentPlan) ? r2.contentPlan : [];
+        const studyItems = Array.isArray(r2.studyPlan2) ? r2.studyPlan2 : [];
+
+        reportOut.innerHTML = `
+          <div class="report">
+            <div class="report__t">요약</div>
+            <div class="report__p">${escapeHtml((Array.isArray(r2.summaryLines) ? r2.summaryLines : []).join("\n")).replaceAll("\n", "<br>")}</div>
+            <ul class="report__list">
+              <li><strong>총점</strong>: ${escapeHtml(r2.stats?.scoreText || "-")}</li>
+              <li><strong>정답률</strong>: ${escapeHtml(r2.stats?.accuracyText || "-")}</li>
+              <li><strong>완료 세트</strong>: ${escapeHtml(r2.stats?.doneText || "-")}</li>
+              <li><strong>우선 복습(유형)</strong>: ${escapeHtml(r2.stats?.focusSkillText || "-")}</li>
+              <li><strong>우선 복습(주제)</strong>: ${escapeHtml(r2.stats?.focusTopicText || "-")}</li>
+            </ul>
+
+            <div class="report__t" style="margin-top:10px;">약점 진단</div>
+            <ul class="report__list">
+              ${(Array.isArray(r2.weaknessBullets) ? r2.weaknessBullets : []).map((x) => `<li>${escapeHtml(String(x))}</li>`).join("")}
+            </ul>
+
+            <div class="report__t" style="margin-top:10px;">오답 요약(최근)</div>
+            <ul class="report__list">
+              ${(Array.isArray(r2.mistakeBullets) ? r2.mistakeBullets : []).map((x) => `<li>${escapeHtml(String(x))}</li>`).join("")}
+            </ul>
+
+            <div class="report__t" style="margin-top:10px;">바로 실행 체크리스트</div>
+            <ul class="report__list">
+              ${(() => {
+                const items = Array.isArray(r2.checklistItems) ? r2.checklistItems : [];
+                if (items.length) {
+                  return items
+                    .slice(0, 10)
+                    .map(
+                      (it) => `<li><strong>${escapeHtml(String(it?.title || "-"))}</strong>
+                        <ul>
+                          <li><strong>왜</strong>: ${escapeHtml(String(it?.why || "-"))}</li>
+                          <li><strong>어떻게</strong>: ${escapeHtml(String(it?.how || "-"))}</li>
+                        </ul>
+                      </li>`,
+                    )
+                    .join("");
+                }
+                // Backward compatibility (older server payload)
+                const legacy = Array.isArray(r2.checklist) ? r2.checklist : [];
+                return legacy.slice(0, 6).map((x) => `<li>${escapeHtml(String(x))}</li>`).join("");
+              })()}
+            </ul>
+
+            <div class="report__t" style="margin-top:10px;">콘텐츠 접근 학습플랜 1</div>
+            <ul class="report__list">
+              ${contentPlan
+                .map((p) => {
+                  const links = safeLinks(p.links);
+                  const queries = Array.isArray(p.queries) ? p.queries : [];
+                  return `<li><strong>${escapeHtml(p.title || "-")}</strong>
+                    <ul>
+                      <li><strong>부족한 이유</strong>: ${escapeHtml(p.reason || "-")}</li>
+                      <li><strong>부족한 내용 채우는 방법</strong>: ${escapeHtml(p.method || "-")}</li>
+                      <li><strong>링크 추천 이유</strong>: ${escapeHtml(p.linkWhy || "-")}</li>
+                      <li><strong>링크</strong>:
+                        ${links
+                          .slice(0, 12)
+                          .map((l) => `<a href="${escapeHtml(l.url)}" target="_blank" rel="noreferrer">${escapeHtml(l.title)}</a>`)
+                          .join(" · ") || "-"}
+                      </li>
+                      <li><strong>검색어</strong>: ${queries.slice(0, 10).map((q) => `<code>${escapeHtml(String(q))}</code>`).join(" · ") || "-"}</li>
+                    </ul>
+                  </li>`;
+                })
+                .join("")}
+            </ul>
+
+            <div class="report__t" style="margin-top:10px;">실전 독해 학습플랜 2</div>
+            <ul class="report__list">
+              ${studyItems
+                .slice(0, 10)
+                .map((it) => {
+                  const tips = Array.isArray(it?.tips) ? it.tips : [];
+                  const ex = Array.isArray(it?.examples) ? it.examples : [];
+                  return `<li><strong>${escapeHtml(String(it?.title || "-"))}</strong>: ${escapeHtml(String(it?.body || "-"))}
+                    <ul>
+                      ${tips.slice(0, 6).map((t) => `<li>${escapeHtml(String(t))}</li>`).join("")}
+                      ${ex
+                        .slice(0, 6)
+                        .map(
+                          (e) =>
+                            `<li><span class="jp">${escapeHtml(String(e?.jp || ""))}</span><div class="muted" style="margin-top:4px;">${escapeHtml(
+                              String(e?.ko || ""),
+                            )}</div></li>`,
+                        )
+                        .join("")}
+                    </ul>
+                  </li>`;
+                })
+                .join("")}
+            </ul>
+          </div>
+        `;
+        setProg(100, "완료");
+        if (statusEl) statusEl.textContent = "제미나이 리포트 생성 완료.";
+        return;
+      }
+      throw new Error("bad ai payload");
+    } catch (e) {
+      if (statusEl) statusEl.textContent = `제미나이 실패: ${String(e?.message || e)} (로컬 버튼으로 대체 가능)`;
+    } finally {
+      stopProg();
+      if (loading) loading.hidden = true;
+      if (progBox) progBox.hidden = true;
+      running = false;
+      if (btnAi) btnAi.disabled = false;
+      if (btnLocal) btnLocal.disabled = false;
+    }
+  };
+
+  const runLocal = () => {
+    if (running) return;
+    const seed = nextReportSeed();
+    const ctx = buildCtx();
+    reportOut.innerHTML = buildFinalReportHtml(ctx, seed);
+    if (statusEl) statusEl.textContent = "로컬 리포트 생성 완료.";
+  };
+
+  if (btnAi) btnAi.addEventListener("click", tryAi);
+  if (btnLocal) btnLocal.addEventListener("click", runLocal);
+  if (statusEl) statusEl.textContent = "분석 버튼을 누르면 리포트가 생성된다.";
+}
 function renderAll() {
   try {
     document.body.dataset.review = isReviewMode() ? "1" : "0";
