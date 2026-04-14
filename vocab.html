@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EJU 일본어 독해 · 단어</title>
+    <meta name="color-scheme" content="light dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="container top__inner">
+        <div class="top__left">
+          <div class="top__kicker">EJU Reading</div>
+          <div class="top__title" id="appTitle">—</div>
+          <div class="top__sub" id="appSub">—</div>
+        </div>
+
+        <div class="top__right">
+          <div class="step">
+            <div class="step__dot" aria-hidden="true"></div>
+            <div class="step__text" id="stepTag">—</div>
+          </div>
+          <a class="btn btn--quiet" href="./index.html">메인</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container shell" id="vocabApp">
+      <section class="vocabTopCard" aria-label="단어장 요약">
+        <div class="vocabTopCard__left">
+          <div class="vocabTopCard__k">단어시험 현황</div>
+          <div class="vocabTopCard__t" id="vocabTopTitle">—</div>
+          <div class="vocabTopCard__sub muted" id="vocabTopSub">—</div>
+        </div>
+        <div class="vocabTopCard__grid">
+          <div class="stat stat--mini">
+            <div class="stat__k">단어 수</div>
+            <div class="stat__v" id="vocabTopCount">—</div>
+            <div class="stat__d" id="vocabTopCountSub">—</div>
+            <div class="bar" aria-hidden="true"><div class="bar__in" id="vocabTopCountBar" style="width:0%"></div></div>
+          </div>
+          <div class="stat stat--mini">
+            <div class="stat__k">암기(체크) 비율</div>
+            <div class="stat__v" id="vocabTopKnown">—</div>
+            <div class="stat__d" id="vocabTopKnownSub">—</div>
+            <div class="bar" aria-hidden="true"><div class="bar__in" id="vocabTopKnownBar" style="width:0%"></div></div>
+          </div>
+          <div class="stat stat--mini">
+            <div class="stat__k">읽기 등록률</div>
+            <div class="stat__v" id="vocabTopReading">—</div>
+            <div class="stat__d" id="vocabTopReadingSub">—</div>
+            <div class="bar" aria-hidden="true"><div class="bar__in" id="vocabTopReadingBar" style="width:0%"></div></div>
+          </div>
+          <div class="stat stat--mini">
+            <div class="stat__k">단어시험 정답률</div>
+            <div class="stat__v" id="vocabTopAcc">—</div>
+            <div class="stat__d" id="vocabTopAccSub">—</div>
+            <div class="bar" aria-hidden="true"><div class="bar__in" id="vocabTopAccBar" style="width:0%"></div></div>
+          </div>
+          <div class="stat stat--mini">
+            <div class="stat__k">뜻 메모 완료</div>
+            <div class="stat__v" id="vocabTopMeaning">—</div>
+            <div class="stat__d" id="vocabTopMeaningSub">—</div>
+            <div class="bar" aria-hidden="true"><div class="bar__in" id="vocabTopMeaningBar" style="width:0%"></div></div>
+          </div>
+          <div class="stat stat--mini">
+            <div class="stat__k">미암기 단어</div>
+            <div class="stat__v" id="vocabTopUnknown">—</div>
+            <div class="stat__d" id="vocabTopUnknownSub">—</div>
+            <div class="bar" aria-hidden="true"><div class="bar__in" id="vocabTopUnknownBar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="vocabTopCard__right">
+          <a class="btn" href="./index.html">메인</a>
+          <a class="btn btn--primary" id="btnGoVocabQuizTop" href="./vocab-quiz.html?mock=1">단어시험</a>
+        </div>
+      </section>
+
+      <section class="paper">
+        <div class="paper__head paper__head--row">
+          <div>
+            <div class="paper__label">단어</div>
+            <h2 class="paper__title" id="vocabTitle">—</h2>
+          </div>
+          <div class="paper__tools">
+            <button class="btn" id="btnShuffle" type="button">섞기</button>
+            <button class="btn btn--quiet" id="btnResetVocab" type="button">진행 초기화</button>
+          </div>
+        </div>
+
+        <div class="vocabToolbar" id="vocabToolbar">
+          <label class="field">
+            <div class="field__k">검색</div>
+            <input class="input" id="vocabSearch" placeholder="예: 知性 / サブスク" />
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="onlyUnknown" />
+            <span class="toggle__ui" aria-hidden="true"></span>
+            <span class="toggle__text">미암기만</span>
+          </label>
+          <div class="hint muted" id="vocabHint"></div>
+        </div>
+
+        <section class="vocabList" id="vocabList"></section>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
+

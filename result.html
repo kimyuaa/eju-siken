@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EJU 일본어 독해 · 최종 분석</title>
+    <meta name="color-scheme" content="light dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="container top__inner">
+        <div class="top__left">
+          <div class="top__kicker">EJU Reading</div>
+          <div class="top__title" id="appTitle">—</div>
+          <div class="top__sub" id="appSub">—</div>
+        </div>
+
+        <div class="top__right">
+          <div class="step">
+            <div class="step__dot" aria-hidden="true"></div>
+            <div class="step__text" id="stepTag">최종 분석</div>
+          </div>
+          <a class="btn btn--quiet" href="./index.html">메인</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container shell" id="resultApp">
+      <section class="paper">
+        <div class="paper__head paper__head--row">
+          <div>
+            <div class="paper__label">결과</div>
+            <h2 class="paper__title">모의고사 1 · 최종 결과 분석</h2>
+          </div>
+          <div class="paper__tools">
+            <button class="btn btn--quiet" id="btnPrintReport" type="button">인쇄</button>
+            <button class="btn" id="btnRestartAll" type="button">처음부터 시작(초기화)</button>
+            <a class="btn btn--primary" id="btnReview" href="./exam.html?i=0&review=1">해설보기</a>
+            <a class="btn" id="btnRetryFromResult" href="./exam.html?i=0">다시풀기</a>
+          </div>
+        </div>
+
+        <div class="dash__grid" id="resultStats"></div>
+
+        <details class="dash__details dash__details--weak" open>
+          <summary class="dash__summary">
+            <div class="dash__summaryLeft">
+              <div class="dash__summaryTitle">약점 분석</div>
+              <div class="dash__summarySub muted">정답률이 낮은 유형/지문을 자동으로 요약합니다.</div>
+            </div>
+            <div class="pill">Insight</div>
+          </summary>
+          <div class="dash__body" id="weaknessBody"></div>
+        </details>
+
+        <details class="dash__details dash__details--chart" open>
+          <summary class="dash__summary">
+            <div class="dash__summaryLeft">
+              <div class="dash__summaryTitle">카테고리별 정답률</div>
+              <div class="dash__summarySub muted">지문 주제(8종) 기준으로 정답률을 시각화합니다.</div>
+            </div>
+            <div class="pill">Topics</div>
+          </summary>
+          <div class="dash__body" id="topicChart"></div>
+        </details>
+
+        <details class="dash__details dash__details--chart" open>
+          <summary class="dash__summary">
+            <div class="dash__summaryLeft">
+              <div class="dash__summaryTitle">문항 유형별 정답률</div>
+              <div class="dash__summarySub muted">문항 스킬(내용 일치/필자 주장 등) 기준으로 정답률을 시각화합니다.</div>
+            </div>
+            <div class="pill">Skills</div>
+          </summary>
+          <div class="dash__body" id="skillChart"></div>
+        </details>
+
+        <details class="dash__details" open>
+          <summary class="dash__summary">
+            <div class="dash__summaryLeft">
+              <div class="dash__summaryTitle">분석 리포트</div>
+              <div class="dash__summarySub muted">현재 기록(정답/오답/선택 패턴) 기반으로 리포트를 생성합니다.</div>
+            </div>
+            <div class="pill">Report</div>
+          </summary>
+          <div class="dash__body" id="finalReport">
+            <div class="paper__tools" style="margin-bottom:10px;">
+              <button class="btn btn--primary" id="btnStartAiReport" type="button">분석 시작(제미나이)</button>
+              <button class="btn" id="btnStartLocalReport" type="button">로컬로 빠른 리포트</button>
+              <div class="muted" id="reportStatus" style="font-size:12px;"></div>
+            </div>
+            <div class="hint muted" id="reportLoading" hidden>리포트를 생성 중입니다…</div>
+            <div class="progressBox" id="reportProgress" hidden>
+              <div class="progressBox__top">
+                <div class="progressBox__t">리포트 작성 중</div>
+                <div class="progressBox__pct" id="reportProgressPct">0%</div>
+              </div>
+              <div class="progressBox__sub muted" id="reportProgressSub">준비 중…</div>
+              <div class="bar" aria-hidden="true">
+                <div class="bar__in" id="reportProgressBar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
+
