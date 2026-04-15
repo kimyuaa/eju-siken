@@ -19,6 +19,17 @@ app.set("trust proxy", 1);
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
+function withTimeout(promise, ms, label = "timeout") {
+  const t = Number(ms);
+  if (!Number.isFinite(t) || t <= 0) return promise;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`${label}: ${t}ms`)), t);
+    }),
+  ]);
+}
+
 function mustGetEnv(name) {
   const v = process.env[name];
   if (!v) throw new Error(`Missing env: ${name}`);
@@ -38,7 +49,9 @@ async function googleCseSearch({ apiKey, cx, q, num = 5 }) {
   url.searchParams.set("q", q);
   url.searchParams.set("num", String(Math.max(1, Math.min(10, num))));
 
-  const res = await fetch(url);
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 6000);
+  const res = await fetch(url, { signal: ac.signal }).finally(() => clearTimeout(timer));
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
     throw new Error(`CSE error: ${res.status} ${res.statusText} ${txt}`);
@@ -385,7 +398,7 @@ app.post("/api/report", async (req, res) => {
     }
 
     async function generateJson(promptText) {
-      const out = await model.generateContent(promptText);
+      const out = await withTimeout(model.generateContent(promptText), 20000, "gemini generateContent timeout");
       const text = out.response.text();
       const json = tryParseJson(text);
       return { json, raw: text };
