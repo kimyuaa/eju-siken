@@ -554,13 +554,26 @@ app.post("/api/report", async (req, res) => {
 });
 
 // After API routes: serve the static mock-exam site from repo root (local + Docker + PaaS).
+// IMPORTANT (PaaS):
+// - Avoid aggressive caching for HTML/JS/CSS to prevent clients seeing stale UI after deploy.
+app.use((req, res, next) => {
+  try {
+    const p = String(req.path || "");
+    if (p.endsWith(".html") || p.endsWith(".js") || p.endsWith(".css")) {
+      res.setHeader("Cache-Control", "no-store");
+    }
+  } catch {
+    // ignore
+  }
+  next();
+});
 app.use(
   express.static(publicDir, {
     extensions: ["html"],
     index: ["index.html"],
     // Allow serving dotfiles used as local import artifacts (e.g. .tmp_tangosi2_vocab.json).
     dotfiles: "allow",
-    maxAge: process.env.NODE_ENV === "production" ? "1h" : 0,
+    maxAge: 0,
   }),
 );
 
