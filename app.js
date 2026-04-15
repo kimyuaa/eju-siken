@@ -5453,6 +5453,27 @@ function renderResultPage() {
   const examDenom = examTotalQ > 0 ? examTotalQ : totalQ;
   const solvedPct = examDenom ? Math.round((solvedQ / examDenom) * 100) : 0;
 
+  // Recent record should reflect the latest attempted (picked) activity.
+  let recentLabel = "—";
+  let recentTs = 0;
+  try {
+    const d = getReadingDraft();
+    Object.entries(d.byPassageId || {}).forEach(([pid, v]) => {
+      const ts = Number(v?.ts || 0);
+      if (!Number.isFinite(ts) || ts <= 0) return;
+      if (Number.isFinite(minTs) && minTs > 0 && ts < minTs) return;
+      const answers = v?.answers || {};
+      const pickedAny = Object.values(answers).some((x) => typeof x === "number");
+      if (!pickedAny) return;
+      if (ts < recentTs) return;
+      recentTs = ts;
+      const p = (EXAM.passages || []).find((pp) => String(pp.id) === String(pid));
+      recentLabel = String(p?.label || pid || "—");
+    });
+  } catch {
+    // ignore
+  }
+
   const makeStat = (k, v, d, pct2) => `
     <div class="stat">
       <div class="stat__k">${escapeHtml(k)}</div>
@@ -5470,7 +5491,7 @@ function renderResultPage() {
       "문항 풀이 기준",
       solvedPct,
     ),
-    makeStat("최근 기록", rows[rows.length - 1] ? `${rows[rows.length - 1].label}` : "—", rows[rows.length - 1] ? formatShortDate(rows[rows.length - 1].ts) : "—", 100),
+    makeStat("최근 기록", recentLabel, recentTs ? formatShortDate(recentTs) : "—", 100),
   ].join("");
 
 
