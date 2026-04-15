@@ -2746,6 +2746,12 @@ function reportSeedKey(mockId = parseMockIdFromUrl()) {
   return `nihongo:reportSeed:mock${String(mockId)}:v1`;
 }
 
+function aiReportCacheKey(mockId, seed, updatedAt) {
+  const s = Number(seed);
+  const u = Number(updatedAt);
+  return `nihongo:aiReportCache:mock${String(mockId)}:seed${Number.isFinite(s) ? s : 0}:u${Number.isFinite(u) ? u : 0}:v1`;
+}
+
 function parseVocabModeFromUrl() {
   const url = new URL(window.location.href);
   const m = url.searchParams.get("mode");
@@ -5611,7 +5617,29 @@ function renderResultPage() {
       if (btnAi) btnAi.disabled = true;
       if (btnLocal) btnLocal.disabled = true;
       if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
-      const seed = nextReportSeed();
+      const mockId = parseMockIdFromUrl();
+      const rr = getReadingResults();
+      const updatedAt = Number(rr?.updatedAt || 0);
+      // Reuse the same seed for the same exam run (avoid generating a new report every click).
+      let seed = Number(localStorage.getItem(reportSeedKey(mockId)) || "");
+      if (!Number.isFinite(seed) || seed <= 0) {
+        seed = nextReportSeed(rr);
+        localStorage.setItem(reportSeedKey(mockId), String(seed));
+      }
+      const cacheKey = aiReportCacheKey(mockId, seed, updatedAt);
+      const cachedHtml = localStorage.getItem(cacheKey);
+      if (cachedHtml && String(cachedHtml).trim()) {
+        reportOut.innerHTML = String(cachedHtml);
+        if (statusEl) statusEl.textContent = "캐시된 리포트 표시 완료.";
+        stopProg();
+        if (loading) loading.hidden = true;
+        if (progBox) progBox.hidden = true;
+        running = false;
+        if (btnAi) btnAi.disabled = false;
+        if (btnLocal) btnLocal.disabled = false;
+        return;
+      }
+
       const ctx = buildCtx();
       // Network timeout so the UI doesn't hang indefinitely on PaaS.
       const ac = new AbortController();
@@ -5752,6 +5780,11 @@ function renderResultPage() {
             </ul>
           </div>
         `;
+        try {
+          localStorage.setItem(cacheKey, reportOut.innerHTML);
+        } catch {
+          // ignore
+        }
         setProg(100, "완료");
         if (statusEl) statusEl.textContent = "제미나이 리포트 생성 완료.";
         return;

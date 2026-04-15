@@ -19,6 +19,31 @@ app.set("trust proxy", 1);
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
+// Simple in-memory cache to reduce repeated Gemini calls (429 mitigation).
+// Keyed by request (context+seed+locale). TTL is short to keep memory bounded.
+const reportCache = new Map(); // key -> { ts, payload }
+function getCachedReport(key, ttlMs = 10 * 60_000) {
+  const hit = reportCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > ttlMs) {
+    reportCache.delete(key);
+    return null;
+  }
+  return hit.payload || null;
+}
+function setCachedReport(key, payload) {
+  // crude size bound: keep last ~40 items
+  try {
+    if (reportCache.size > 40) {
+      const firstKey = reportCache.keys().next().value;
+      if (firstKey) reportCache.delete(firstKey);
+    }
+  } catch {
+    // ignore
+  }
+  reportCache.set(key, { ts: Date.now(), payload });
+}
+
 function withTimeout(promise, ms, label = "timeout") {
   const t = Number(ms);
   if (!Number.isFinite(t) || t <= 0) return promise;
@@ -283,6 +308,10 @@ app.post("/api/vocab", async (req, res) => {
  */
 app.post("/api/report", async (req, res) => {
   try {
+    const cacheKey = crypto.createHash("sha256").update(JSON.stringify(req.body || {})).digest("hex");
+    const cached = getCachedReport(cacheKey);
+    if (cached) return res.json(cached);
+
     const apiKey = mustGetEnv("GEMINI_API_KEY");
     // v1beta model naming can differ; default to a commonly available alias.
     const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
@@ -552,7 +581,9 @@ app.post("/api/report", async (req, res) => {
       });
     }
 
-    res.json({ seed, ...parsed });
+    const payload = { seed, ...parsed };
+    setCachedReport(cacheKey, payload);
+    res.json(payload);
   } catch (e) {
     const msg = String(e?.message || e || "");
     // If Gemini rate-limits, propagate as 429 with retry hint.
