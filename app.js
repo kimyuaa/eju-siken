@@ -5440,12 +5440,18 @@ function renderResultPage() {
   } = computeReadingAnalytics(r);
 
   // Denominator should reflect full exam size (EJU style: 20 or 22),
-  // not only the number of passages that happened to be graded/persisted.
+  // and also show solved-count based stats when user hasn't solved all questions.
   const examTotalQ = totalQuestionCount();
-  const scoreDenom = examTotalQ > 0 ? examTotalQ : totalQ;
+  const solvedQ = rows.reduce(
+    (s, p) => s + (Array.isArray(p.qResults) ? p.qResults.filter((qr) => typeof qr?.picked === "number").length : 0),
+    0,
+  );
+  // "총점" should be correct / solved (attempted) count.
+  const scoreDenom = solvedQ > 0 ? solvedQ : 0;
   const scorePct = scoreDenom ? Math.round((correctQ / scoreDenom) * 100) : 0;
-  const solvedQ = rows.reduce((s, p) => s + (Array.isArray(p.qResults) ? p.qResults.filter((qr) => typeof qr?.picked === "number").length : 0), 0);
-  const solvedPct = scoreDenom ? Math.round((solvedQ / scoreDenom) * 100) : 0;
+  // "완료" should show solved / total exam questions.
+  const examDenom = examTotalQ > 0 ? examTotalQ : totalQ;
+  const solvedPct = examDenom ? Math.round((solvedQ / examDenom) * 100) : 0;
 
   const makeStat = (k, v, d, pct2) => `
     <div class="stat">
@@ -5456,11 +5462,11 @@ function renderResultPage() {
     </div>
   `;
   statsEl.innerHTML = [
-    makeStat("총점", `${correctQ} / ${scoreDenom}`, "전체 문항 기준", scorePct),
-    makeStat("정답률", `${scorePct}%`, "최종", scorePct),
+    makeStat("총점", `${correctQ} / ${scoreDenom}`, "푼 문항 기준", scorePct),
+    makeStat("정답률", `${scorePct}%`, "푼 문항 기준", scorePct),
     makeStat(
       "완료 세트",
-      `${solvedQ} / ${scoreDenom}`,
+      `${solvedQ} / ${examDenom}`,
       "문항 풀이 기준",
       solvedPct,
     ),
