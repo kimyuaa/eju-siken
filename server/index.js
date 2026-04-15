@@ -781,49 +781,27 @@ app.post("/api/report", async (req, res) => {
     }
 
     if (!parsed || typeof parsed !== "object" || !parsed.report || typeof parsed.report !== "object") {
-      return res.json({
+      const rawPreview = String(lastRaw || "").slice(0, 4000);
+      return res.status(422).json({
+        ok: false,
+        errorType: "gemini_json_parse",
         seed,
-        report: {
-          summaryLines: ["리포트 생성 결과가 JSON 형식으로 반환되지 않았다.", "서버 프롬프트를 점검해야 한다."],
-          stats: {
-            scoreText: "-",
-            accuracyText: "-",
-            doneText: "-",
-            focusSkillText: "-",
-            focusTopicText: "-",
-          },
-          weaknessBullets: ["생성 실패로 진단을 확정할 수 없다."],
-          mistakeBullets: ["생성 실패로 오답 요약을 확정할 수 없다."],
-          checklistItems: [],
-          contentPlan: [],
-          studyPlan2: [],
-        },
-        links: [],
-        raw: String(lastRaw || "")
+        error:
+          "Gemini 응답을 유효한 report JSON으로 파싱하지 못했다. (출력이 잘리거나 JSON이 아닐 수 있다)",
+        rawPreview,
       });
     }
 
+
     const finalErrs = validateReport(parsed.report);
     if (finalErrs.length) {
-      return res.json({
+      const rawPreview = String(lastRaw || "").slice(0, 4000);
+      return res.status(422).json({
+        ok: false,
+        errorType: "report_schema_invalid",
         seed,
-        report: {
-          summaryLines: ["리포트 생성 결과가 요구사항을 충족하지 못했다.", `부족 항목: ${finalErrs.join(", ")}`],
-          stats: {
-            scoreText: "-",
-            accuracyText: "-",
-            doneText: "-",
-            focusSkillText: "-",
-            focusTopicText: "-",
-          },
-          weaknessBullets: ["생성 실패로 진단을 확정할 수 없다."],
-          mistakeBullets: ["생성 실패로 오답 요약을 확정할 수 없다."],
-          checklistItems: [],
-          contentPlan: [],
-          studyPlan2: [],
-        },
-        links: [],
-        raw: String(lastRaw || "")
+        error: `리포트 스키마 검증 실패: ${finalErrs.join(", ")}`,
+        rawPreview,
       });
     }
 

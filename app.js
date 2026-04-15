@@ -2883,6 +2883,48 @@ function aiReportCooldownKey(mockId) {
   return `nihongo:aiReportCooldown:mock${String(mockId)}:v1`;
 }
 
+/** Legacy server: parse failure returned as HTTP 200 with placeholder summary lines. */
+function isLegacyReportJsonFallbackPayload(data) {
+  const lines = data?.report?.summaryLines;
+  if (!Array.isArray(lines)) return false;
+  const markerA = '리포트 생성 결과가 JSON 형식으로 반환되지 않았다';
+  const markerB = '서버 프롬프트를 점검해야 한다';
+  return lines.some((s) => typeof s === "string" && (s.includes(markerA) || s.includes(markerB)));
+}
+
+function serverReportErrorDetail(j) {
+  if (!j || typeof j !== "object") return "";
+  const v = j.error ?? j.message ?? j.hint;
+  return v != null ? String(v) : "";
+}
+
+function labelForReportApiFailure(status, errorType) {
+  if (status === 429) return 'Gemini quota 초과';
+  if (status === 504) return '게이트웨이 시간 초과';
+  if (status === 502 || status === 503) return '서버 일시 오류';
+  if (status === 500) return '서버 내부 오류';
+  if (status === 422) {
+    if (errorType === "gemini_json_parse") return 'JSON 파싱 실패';
+    if (errorType === "report_schema_invalid") return '리포트 검증 실패';
+    return '요청 처리 실패(422)';
+  }
+  if (status === 405) return "HTTP 메서드 오류";
+  if (status === 400) return '잘못된 요청';
+  if (status >= 500) return '서버 내부 오류';
+  if (status >= 400) return `HTTP ${status}`;
+  return '알 수 없는 오류';
+}
+
+function formatReportApiFailureLine(status, bodyText, bodyJson) {
+  const errorType = bodyJson && typeof bodyJson === "object" ? bodyJson.errorType : undefined;
+  const label = labelForReportApiFailure(status, errorType);
+  const detail =
+    serverReportErrorDetail(bodyJson) ||
+    (bodyText && String(bodyText).trim().slice(0, 4000)) ||
+    "(본문 없음)";
+  return `${label}: ${detail}`;
+}
+
 function parseVocabModeFromUrl() {
   const url = new URL(window.location.href);
   const m = url.searchParams.get("mode");
@@ -5780,7 +5822,7 @@ function renderResultPage() {
       const cdUntil = Number(localStorage.getItem(aiReportCooldownKey(mockId)) || 0);
       if (Number.isFinite(cdUntil) && cdUntil > Date.now()) {
         const leftSec = Math.max(1, Math.ceil((cdUntil - Date.now()) / 1000));
-        throw new Error(`ai cooldown. ${leftSec}초 후 재시도`);
+        throw new Error(`재시도 대기: ${leftSec}초 후 다시 시도`);
       }
 
       const rr = getReadingResults();
@@ -5867,28 +5909,57 @@ function renderResultPage() {
       } catch {
         // ignore
       }
+      const bodyText = await resp.text();
+      let bodyJson = null;
+      try {
+        bodyJson = bodyText ? JSON.parse(bodyText) : null;
+      } catch {
+        bodyJson = null;
+      }
+
       if (!resp.ok) {
-        let extra = "";
         let retryAfterSec;
-        try {
-          const j = await resp.json();
-          if (j && j.error) extra = ` · ${String(j.error).slice(0, 140)}`;
-          if (Number.isFinite(Number(j?.retryAfterSec))) retryAfterSec = Number(j.retryAfterSec);
-        } catch {
-          // ignore
+        if (bodyJson && Number.isFinite(Number(bodyJson.retryAfterSec))) {
+          retryAfterSec = Number(bodyJson.retryAfterSec);
+        } else {
+          const ra = resp.headers.get("Retry-After");
+          const n = Number(ra);
+          if (Number.isFinite(n)) retryAfterSec = n;
         }
-        if (resp.status === 429) {
-          const wait = retryAfterSec || 20;
+        if (resp.status === 429 && Number.isFinite(retryAfterSec)) {
           try {
-            localStorage.setItem(aiReportCooldownKey(mockId), String(Date.now() + wait * 1000));
+            localStorage.setItem(aiReportCooldownKey(mockId), String(Date.now() + retryAfterSec * 1000));
           } catch {
             // ignore
           }
-          throw new Error(`ai server 429 (요청 제한). ${wait}초 후 재시도`);
         }
-        throw new Error(`ai server ${resp.status}${extra}`);
+        if (statusEl) statusEl.textContent = formatReportApiFailureLine(resp.status, bodyText, bodyJson);
+        return;
       }
-      const data = await resp.json();
+
+      const data = bodyJson;
+      if (!data || typeof data !== "object") {
+        const detail = (bodyText && String(bodyText).trim()) || "";
+        if (statusEl) {
+          statusEl.textContent = "JSON 파싱 실패: " + detail.slice(0, 4000);
+        }
+        return;
+      }
+
+      if ((!data.report || typeof data.report !== "object") && (data.ok === false || data.error || data.errorType)) {
+        if (statusEl) statusEl.textContent = formatReportApiFailureLine(resp.status, bodyText, data);
+        return;
+      }
+
+      if (isLegacyReportJsonFallbackPayload(data)) {
+        const raw = data.raw != null ? String(data.raw).slice(0, 1200) : "";
+        const detail = serverReportErrorDetail(data) || "legacy placeholder response";
+        if (statusEl) {
+          statusEl.textContent = "JSON 파싱 실패(구버전 응답): " + detail + (raw ? " | raw: " + raw : "");
+        }
+        return;
+      }
+
       if (data && data.report && typeof data.report === "object") {
         const r2 = data.report;
         const safeLinks = (arr) =>
@@ -6005,7 +6076,11 @@ function renderResultPage() {
         if (statusEl) statusEl.textContent = "제미나이 리포트 생성 완료.";
         return;
       }
-      throw new Error("bad ai payload");
+      if (statusEl) {
+        statusEl.textContent =
+          "리포트 응답 형식 오류: " + String(bodyText || "").slice(0, 2000);
+      }
+      return;
     } catch (e) {
       try {
         // eslint-disable-next-line no-console
@@ -6013,8 +6088,17 @@ function renderResultPage() {
       } catch {
         // ignore
       }
-      const msg = String(e?.name === "AbortError" ? "요청 시간이 초과되었습니다(95초). 잠시 후 재시도하세요." : (e?.message || e));
-      if (statusEl) statusEl.textContent = `제미나이 실패: ${msg} (로컬 버튼으로 대체 가능)`;
+      const name = String(e?.name || "");
+      const m = String(e?.message || e || "");
+      let line;
+      if (name === "AbortError" || /aborted|AbortError/i.test(m)) {
+        line = `Gemini 응답 시간 초과: ${m || "클라이언트가 95초 이내에 응답을 받지 못해 요청을 중단했다."}`;
+      } else if (name === "TypeError" || /failed to fetch|NetworkError|network error|Load failed/i.test(m)) {
+        line = `네트워크 오류: ${m}`;
+      } else {
+        line = m;
+      }
+      if (statusEl) statusEl.textContent = line;
     } finally {
       stopProg();
       if (loading) loading.hidden = true;
