@@ -146,6 +146,17 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+// Helpful message when someone opens the endpoint in a browser (GET).
+// The report endpoint is POST-only.
+app.get("/api/report", (_req, res) => {
+  res
+    .status(405)
+    .json({
+      error: "Method Not Allowed",
+      hint: "Use POST /api/report with JSON body: { context, seed?, locale? }",
+    });
+});
+
 /**
  * POST /api/translate
  * Body: { text: string, locale?: "ko" }
