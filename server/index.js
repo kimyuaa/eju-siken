@@ -158,6 +158,70 @@ app.get("/api/report", (_req, res) => {
 });
 
 /**
+ * GET /api/gemini-health
+ * A tiny, deterministic Gemini call to check model/API availability without large payload.
+ * Returns: { ok: boolean, model: string, ms: number }
+ */
+app.get("/api/gemini-health", async (_req, res) => {
+  const startedAt = Date.now();
+  const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  try {
+    const apiKey = mustGetEnv("GEMINI_API_KEY");
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
+    const prompt = "Return exactly: OK";
+    const geminiTimeoutMsRaw = Number(process.env.GEMINI_HEALTH_TIMEOUT_MS || "");
+    const geminiTimeoutMs = Number.isFinite(geminiTimeoutMsRaw) ? Math.max(3000, Math.min(20_000, geminiTimeoutMsRaw)) : 10_000;
+    const backoffs = [500, 1200]; // 1~2 retries for transient 5xx/timeout
+    let lastErr;
+    for (let attempt = 0; attempt <= backoffs.length; attempt += 1) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const out = await withTimeout(
+          model.generateContent({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0 },
+          }),
+          geminiTimeoutMs,
+          "gemini health timeout",
+        );
+        const txt = String(out?.response?.text?.() || "").trim();
+        const ms = Date.now() - startedAt;
+        // eslint-disable-next-line no-console
+        console.log("[/api/gemini-health] ok", { modelName, ms, attempt: attempt + 1, response: txt.slice(0, 40) });
+        return res.json({ ok: txt.includes("OK"), model: modelName, ms });
+      } catch (e) {
+        lastErr = e;
+        const msg = String(e?.message || e || "");
+        // eslint-disable-next-line no-console
+        console.error("[/api/gemini-health] fail", {
+          modelName,
+          attempt: attempt + 1,
+          ms: Date.now() - startedAt,
+          promptChars: prompt.length,
+          message: msg.slice(0, 500),
+          stack: String(e?.stack || "").split("\n").slice(0, 6).join("\n"),
+        });
+        const is5xx = msg.includes("[500") || msg.includes("[502") || msg.includes("[503") || msg.includes("[504");
+        const isTimeout = msg.includes("timeout");
+        if (!(is5xx || isTimeout) || attempt >= backoffs.length) break;
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, backoffs[attempt]));
+      }
+    }
+    const ms = Date.now() - startedAt;
+    const finalMsg = String(lastErr?.message || lastErr || "");
+    return res.status(500).json({ ok: false, model: modelName, ms, error: finalMsg });
+  } catch (e) {
+    const ms = Date.now() - startedAt;
+    const msg = String(e?.message || e || "");
+    // eslint-disable-next-line no-console
+    console.error("[/api/gemini-health] fatal", { modelName, ms, message: msg, stack: String(e?.stack || "") });
+    return res.status(500).json({ ok: false, model: modelName, ms, error: msg });
+  }
+});
+
+/**
  * POST /api/translate
  * Body: { text: string, locale?: "ko" }
  * Returns: { html: string }
@@ -244,7 +308,7 @@ app.post("/api/translate", async (req, res) => {
     const tryGemini = async () => {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey || isPlaceholderEnv(apiKey)) throw new Error("Missing env: GEMINI_API_KEY");
-      const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
+      const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: modelName });
       const prompt = [
@@ -298,7 +362,7 @@ app.post("/api/translate", async (req, res) => {
 app.post("/api/vocab", async (req, res) => {
   try {
     const apiKey = mustGetEnv("GEMINI_API_KEY");
-    const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
+    const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
     const text = String(req.body?.text || "").trim();
     const countIn = Number(req.body?.count);
     const count = Number.isFinite(countIn) ? Math.max(8, Math.min(18, Math.floor(countIn))) : 14;
@@ -535,6 +599,7 @@ app.post("/api/report", async (req, res) => {
       let lastErr;
       for (let attempt = 0; attempt <= backoffs.length; attempt += 1) {
         try {
+          const startedAt = Date.now();
           // eslint-disable-next-line no-console
           console.log("[/api/report] Gemini call", {
             modelName,
@@ -543,17 +608,30 @@ app.post("/api/report", async (req, res) => {
             promptChars: String(promptText || "").length,
             bodyBytes: Buffer.byteLength(JSON.stringify(req.body || {}), "utf8"),
             timeoutMs: geminiTimeoutMs,
+            startedAt,
           });
           // eslint-disable-next-line no-await-in-loop
           const out = await withTimeout(model.generateContent(promptText), geminiTimeoutMs, "gemini generateContent timeout");
           const text = out.response.text();
           const json = tryParseJson(text);
+          // eslint-disable-next-line no-console
+          console.log("[/api/report] Gemini done", { modelName, phase, attempt: attempt + 1, ms: Date.now() - startedAt, outChars: text.length });
           return { json, raw: text };
         } catch (e) {
           lastErr = e;
+          // eslint-disable-next-line no-console
+          console.error("[/api/report] Gemini throw", {
+            modelName,
+            phase,
+            attempt: attempt + 1,
+            promptChars: String(promptText || "").length,
+            message: String(e?.message || e || "").slice(0, 500),
+            stack: String(e?.stack || "").split("\n").slice(0, 6).join("\n"),
+          });
           logGeminiFailure({ phase, attempt: attempt + 1, promptText, err: e });
           const msg = String(e?.message || e || "");
           const is5xx = msg.includes("[500") || msg.includes("[502") || msg.includes("[503") || msg.includes("[504");
+          const isTimeout = msg.includes("timeout");
           if (!is5xx || attempt >= backoffs.length) break;
           // eslint-disable-next-line no-await-in-loop
           await new Promise((r) => setTimeout(r, backoffs[attempt]));
