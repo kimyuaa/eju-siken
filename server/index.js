@@ -60,6 +60,54 @@ app.get("/api/health", (_req, res) => {
 });
 
 /**
+ * POST /api/translate
+ * Body: { text: string, locale?: "ko" }
+ * Returns: { html: string }
+ */
+app.post("/api/translate", async (req, res) => {
+  try {
+    const apiKey = mustGetEnv("GEMINI_API_KEY");
+    const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
+    const locale = (req.body?.locale || "ko").toString();
+    const text = String(req.body?.text || "").trim();
+    if (!text) return res.status(400).json({ error: "Missing text" });
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
+    const prompt = [
+      "너는 EJU 일본어 독해 학습용 번역가다.",
+      "아래 일본어 지문을 한국어로 자연스럽게 번역하되, 과장 없이 학습용으로 명료하게 번역한다.",
+      "- 출력은 HTML만. 각 문단은 <p>...</p>로 감싼다.",
+      "- 원문 문단 수를 최대한 유지한다.",
+      "- 고유명사/전문용어는 과하게 의역하지 말고 괄호로 보조 설명 가능.",
+      "",
+      "[원문]",
+      text,
+    ].join("\n");
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.2 },
+    });
+    const out = String(result?.response?.text?.() || "").trim();
+    if (!out) return res.status(500).json({ error: "Empty translation" });
+
+    // Very small safety: ensure <p> exists, otherwise wrap whole block.
+    const html = out.includes("<p") ? out : `<p>${out.replaceAll("\n", "<br>")}</p>`;
+    res.json({ html });
+  } catch (e) {
+    const msg = String(e?.message || e || "");
+    if (msg.includes("[429 Too Many Requests]") || msg.includes("retryDelay")) {
+      const m = msg.match(/retryDelay\":\"(\d+)s\"/);
+      const retryAfterSec = m ? Number(m[1]) : undefined;
+      if (Number.isFinite(retryAfterSec)) res.set("Retry-After", String(retryAfterSec));
+      return res.status(429).json({ error: msg, retryAfterSec });
+    }
+    res.status(500).json({ error: msg });
+  }
+});
+
+/**
  * POST /api/report
  * Body: { context: object, seed?: number, locale?: string }
  * Returns: { reportHtml: string, links: Array<{title,url,why}>, seed: number }

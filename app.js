@@ -1739,6 +1739,52 @@ function stripHtml(html) {
   return (el.textContent || "").replace(/\s+/g, " ").trim();
 }
 
+function translateCacheKey(mockId, passageId) {
+  return `nihongo:translation:mock${String(mockId)}:passage:${String(passageId)}:v1`;
+}
+
+function getTranslateApiEndpoint() {
+  // Share host/port logic with report endpoint, but different path.
+  const reportUrl = getReportApiEndpoint();
+  try {
+    const u = new URL(reportUrl, window.location.origin);
+    u.pathname = u.pathname.replace(/\/api\/report$/i, "/api/translate");
+    return u.toString();
+  } catch {
+    return "http://127.0.0.1:8787/api/translate";
+  }
+}
+
+async function ensureKoreanTranslation({ mockId, passage }) {
+  if (!passage || !passage.id) return null;
+  const key = translateCacheKey(mockId, passage.id);
+  const cached = localStorage.getItem(key);
+  if (cached) return cached;
+
+  const text = stripHtml(passage.jpHtml || "");
+  if (!text) return null;
+
+  const url = getTranslateApiEndpoint();
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, locale: "ko" }),
+  });
+  if (!resp.ok) {
+    // Best-effort: don't block grading UX.
+    return null;
+  }
+  const j = await resp.json().catch(() => null);
+  const html = typeof j?.html === "string" ? j.html : "";
+  if (!html.trim()) return null;
+  try {
+    localStorage.setItem(key, html);
+  } catch {
+    // ignore
+  }
+  return html;
+}
+
 function pickSampleSentence(text, term) {
   const parts = String(text)
     .replace(/\s+/g, " ")
@@ -3563,8 +3609,23 @@ function renderPassage() {
   const row = document.querySelector("#passageRow");
   if (graded) {
     tBlock.hidden = false;
-    $("#passageTranslation").innerHTML = p.translationKoHtml || "<p>(해석 없음)</p>";
+    const mockId = parseMockIdFromUrl();
+    const cached = localStorage.getItem(translateCacheKey(mockId, p.id));
+    $("#passageTranslation").innerHTML = cached || p.translationKoHtml || "<p>(해석 없음)</p>";
     if (row) row.classList.add("isSplit");
+
+    // Auto-generate translation for mock 2 if missing (Gemini, cached in localStorage).
+    if ((!cached || !cached.trim()) && (!p.translationKoHtml || p.translationKoHtml.includes("(해석 없음)"))) {
+      ensureKoreanTranslation({ mockId, passage: p })
+        .then((html) => {
+          if (!html) return;
+          const now = currentPassage();
+          if (now && now.id === p.id && graded) {
+            $("#passageTranslation").innerHTML = html;
+          }
+        })
+        .catch(() => {});
+    }
   } else {
     tBlock.hidden = true;
     $("#passageTranslation").innerHTML = "";
