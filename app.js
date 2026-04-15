@@ -5643,7 +5643,8 @@ function renderResultPage() {
       const ctx = buildCtx();
       // Network timeout so the UI doesn't hang indefinitely on PaaS.
       const ac = new AbortController();
-      const t = window.setTimeout(() => ac.abort(), 25_000);
+      // Keep >= server Gemini timeout so client doesn't abort first.
+      const t = window.setTimeout(() => ac.abort(), 95_000);
       let resp;
       try {
         // eslint-disable-next-line no-await-in-loop

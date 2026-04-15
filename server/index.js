@@ -427,7 +427,9 @@ app.post("/api/report", async (req, res) => {
     }
 
     async function generateJson(promptText) {
-      const out = await withTimeout(model.generateContent(promptText), 20000, "gemini generateContent timeout");
+      const geminiTimeoutMsRaw = Number(process.env.GEMINI_TIMEOUT_MS || "");
+      const geminiTimeoutMs = Number.isFinite(geminiTimeoutMsRaw) ? Math.max(60_000, Math.min(90_000, geminiTimeoutMsRaw)) : 90_000;
+      const out = await withTimeout(model.generateContent(promptText), geminiTimeoutMs, "gemini generateContent timeout");
       const text = out.response.text();
       const json = tryParseJson(text);
       return { json, raw: text };
