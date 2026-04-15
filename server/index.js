@@ -143,7 +143,11 @@ function isPlaceholderEnv(v) {
 }
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true });
+  res.json({
+    ok: true,
+    sha: process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT || null,
+    model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+  });
 });
 
 // Helpful message when someone opens the endpoint in a browser (GET).
