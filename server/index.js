@@ -486,7 +486,9 @@ app.post("/api/report", async (req, res) => {
     const cseKey = process.env.GOOGLE_CSE_API_KEY || "";
     const cseCx = process.env.GOOGLE_CSE_CX || "";
     let searched = [];
-    const canSearch = Boolean(cseKey && cseCx && !isPlaceholderEnv(cseKey) && !isPlaceholderEnv(cseCx));
+    // Web search is optional and can slow down report generation. Default off unless explicitly enabled.
+    const searchEnabled = String(process.env.REPORT_ENABLE_SEARCH || "").trim() === "true";
+    const canSearch = searchEnabled && Boolean(cseKey && cseCx && !isPlaceholderEnv(cseKey) && !isPlaceholderEnv(cseCx));
     if (canSearch) {
       try {
         // fetch a few queries, merge unique URLs
@@ -611,7 +613,18 @@ app.post("/api/report", async (req, res) => {
             startedAt,
           });
           // eslint-disable-next-line no-await-in-loop
-          const out = await withTimeout(model.generateContent(promptText), geminiTimeoutMs, "gemini generateContent timeout");
+          const out = await withTimeout(
+            model.generateContent({
+              contents: [{ role: "user", parts: [{ text: promptText }] }],
+              generationConfig: {
+                temperature: 0.2,
+                // Bound output to reduce latency/timeouts.
+                maxOutputTokens: 2048,
+              },
+            }),
+            geminiTimeoutMs,
+            "gemini generateContent timeout",
+          );
           const text = out.response.text();
           const json = tryParseJson(text);
           // eslint-disable-next-line no-console
@@ -693,21 +706,18 @@ app.post("/api/report", async (req, res) => {
       JSON.stringify(searched),
       "",
       "리포트 요구사항:",
-      "- report.summaryLines는 4~7문장. 분석적으로 길게 쓴다.",
+      "- report.summaryLines는 4~6문장. 과장 없이 분석적으로 쓴다.",
       "- 요약에 반드시 포함: 사용자의 오답 패턴 → 일본어 독해에서 일본인이 답을 고르는 사고(근거 중심/범위 엄수/단정 회피) → 사용자가 흔히 빠지는 함정(범위 초과/원인-결과 전도/부분-전체 확대/표현 강도) → 다음 행동.",
       "- report.stats는 화면에 그대로 쓸 짧은 텍스트로 작성.",
       "- report.weaknessBullets는 3~6개.",
-      "- report.mistakeBullets는 최근 오답을 바탕으로 3~5개(데이터가 없으면 1개).",
-      "- report.checklistItems는 6~10개.",
+      "- report.mistakeBullets는 최근 오답을 바탕으로 2~4개(데이터가 없으면 1개).",
+      "- report.checklistItems는 6~8개.",
       "- checklistItems는 ‘질문형 체크리스트(무엇을 확인했는가?)’ + ‘왜 필요한가(일본식 정답 사고: 근거/범위/표현 강도/중립성)’ + ‘어떻게 확인하는가(본문에서 찾을 위치/표지어/판정 규칙)’ 3요소로 쓴다.",
-      "- report.contentPlan은 3~5개 플랜. 각 플랜은 분량을 충분히 길게 쓴다.",
-      "- contentPlan은 뉴스/교재 링크만으로 채우지 않는다. 각 플랜의 links 중 최소 절반은 ‘작품 단위 추천’(드라마/애니/버라이어티/영화/다큐 등 개별 콘텐츠 제목)으로 구성한다.",
-      "- NHK(Easy 포함) 위주로 편향하지 않는다. 사용자의 약점 주제에 맞춘 대중 콘텐츠를 우선 배치한다.",
-      "- 각 플랜 links는 최소 7개(가능하면 9~10개). 링크 제목에는 플랫폼/매체를 함께 적는다. 예: ‘Netflix · 작품명’, ‘YouTube · 영상 제목’, ‘Wikipedia/공식 사이트 · 작품 페이지’.",
-      "- 각 플랜 queries는 6~10개(구체적인 검색어)로 작성한다.",
-      "- report.studyPlan2는 4~7개 항목.",
+      "- report.contentPlan은 2~3개 플랜.",
+      "- 각 플랜 links는 4~6개, queries는 4~6개로 제한한다.",
+      "- report.studyPlan2는 3~5개 항목.",
       "- studyPlan2는 ‘단계 나열’로 끝내지 않는다. 각 항목은 (해석 습관/정답 근거 찾기/보기 제거 기준/문장 구조 잡기/표현 강도 판단/일본식 글 전개)처럼 스킬 중심으로 길게 설명한다.",
-      "- 각 항목은 tips(최소 2개)와 examples(최소 2개)를 포함한다. examples는 항목 바로 아래에서 쓰일 수 있도록 항목 내용과 연결된 문장으로 만든다.",
+      "- 각 항목은 tips(최소 2개)와 examples(최소 2개)를 포함한다.",
       "- links 배열은 contentPlan의 links와 중복 가능하나, why를 포함한다.",
       "- 링크는 searched의 url을 우선 사용한다. 부족하면 google/youtube 검색 결과 링크를 생성한다.",
       `- locale=${locale}`
@@ -727,10 +737,9 @@ app.post("/api/report", async (req, res) => {
           "수정 지시:",
           "- 방금 출력은 요구사항을 충족하지 못했다. 아래 항목을 반드시 고쳐서 다시 JSON만 출력한다.",
           `- 부족한 항목: ${errs.join(", ")}`,
-          "- contentPlan은 3~5개 플랜이며, 각 플랜은 링크 7개 이상/검색어 6개 이상을 채운다.",
-          "- 링크는 뉴스/교재 편향을 피하고, 드라마/애니/버라이어티 같은 ‘작품 단위’ 추천을 최소 절반 포함한다.",
-          "- summaryLines는 4~7문장으로 길게 쓴다.",
-          "- studyPlan2는 4~7개 항목이며, 각 항목은 tips 2개 이상 + examples 2개 이상(jp/ko 모두)로 채운다.",
+          "- contentPlan은 2~3개 플랜이며, 각 플랜은 링크 4개 이상/검색어 4개 이상을 채운다.",
+          "- summaryLines는 4~6문장으로 쓴다.",
+          "- studyPlan2는 3~5개 항목이며, 각 항목은 tips 2개 이상 + examples 2개 이상(jp/ko 모두)로 채운다.",
           "",
           "이전 출력(참고용, 그대로 재사용 금지):",
           JSON.stringify(parsed).slice(0, 8000)
