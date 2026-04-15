@@ -4877,7 +4877,9 @@ function renderPassage() {
 
   const tBlock = $("#translationBlock");
   const row = document.querySelector("#passageRow");
-  if (graded) {
+  // In review mode, always show the Korean translation panel by default.
+  const showTranslation = graded || isReviewMode();
+  if (showTranslation) {
     tBlock.hidden = false;
     const mockId = parseMockIdFromUrl();
     const cached = localStorage.getItem(translateCacheKey(mockId, p.id));
@@ -4891,7 +4893,7 @@ function renderPassage() {
         .then((html) => {
           if (!html) return;
           const now = currentPassage();
-          if (now && now.id === p.id && graded) {
+          if (now && now.id === p.id && (graded || isReviewMode())) {
             $("#passageTranslation").innerHTML = html;
           }
         })
