@@ -9,6 +9,7 @@ COPY server ./server
 COPY api-config.js ./
 COPY app.js styles.css eju_full.txt ./
 COPY index.html exam.html result.html vocab.html vocab-quiz.html ./
+COPY siken3_normalized.json siken3_vocab.json tansi1_vocab.json ./
 
 ENV NODE_ENV=production
 ENV PORT=8787
