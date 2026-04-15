@@ -5406,7 +5406,26 @@ function renderResultPage() {
   const skillEl = document.querySelector("#skillChart");
   if (!statsEl || !weakEl || !topicEl || !skillEl) return;
 
-  const r = getReadingResults();
+  // Result page: show current-run analytics (avoid mixing old attempts)
+  // If an exam session start exists for this mock, only count results at/after that timestamp.
+  const mockId = parseMockIdFromUrl();
+  const minTsRaw = sessionStorage.getItem(examStartKey(mockId));
+  const minTs = minTsRaw ? Number(minTsRaw) : 0;
+  const rawR = getReadingResults();
+  const r = (() => {
+    if (!Number.isFinite(minTs) || minTs <= 0) return rawR;
+    const base = { byPassageId: {}, updatedAt: rawR.updatedAt || 0 };
+    const out = base;
+    try {
+      Object.entries(rawR.byPassageId || {}).forEach(([pid, v]) => {
+        const ts = Number(v?.ts || 0);
+        if (Number.isFinite(ts) && ts >= minTs) out.byPassageId[pid] = v;
+      });
+    } catch {
+      // ignore
+    }
+    return out;
+  })();
   const {
     rows,
     totalQ,
@@ -5468,7 +5487,7 @@ function renderResultPage() {
   const reportHost = document.querySelector("#finalReport");
   if (!reportHost) return;
 
-  const mockId = parseMockIdFromUrl();
+  // mockId already computed above
   const reviewLink = document.querySelector("#btnReview");
   const retryLink = document.querySelector("#btnRetryFromResult");
   if (reviewLink) reviewLink.setAttribute("href", `./exam.html?mock=${encodeURIComponent(mockId)}&i=0&review=1`);
@@ -5483,7 +5502,7 @@ function renderResultPage() {
   }
 
   const buildCtx = () => {
-    const a = computeReadingAnalytics(getReadingResults());
+    const a = computeReadingAnalytics(r);
     return buildReportContextForPrompt({
       rows: a.rows,
       skillRows: a.skillRows,
