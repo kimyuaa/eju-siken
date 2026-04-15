@@ -1486,6 +1486,10 @@ let graded = false;
 let timerId = null;
 let homeRange = "7"; // "7" | "all"
 
+function getExamByMockId(mockId) {
+  return String(mockId) === "2" ? EXAM2 : EXAM1;
+}
+
 function readJson(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -3239,7 +3243,9 @@ function getPassageIndexFromUrl() {
   const raw = url.searchParams.get("i");
   const i = raw ? Number(raw) : 0;
   if (!Number.isFinite(i)) return 0;
-  return Math.min(Math.max(0, Math.floor(i)), EXAM.passages.length - 1);
+  const mockId = url.searchParams.get("mock") || "1";
+  const exam = getExamByMockId(mockId);
+  return Math.min(Math.max(0, Math.floor(i)), exam.passages.length - 1);
 }
 
 function navigateToPassage(i) {
@@ -4291,7 +4297,7 @@ function renderAll() {
   // Select active exam set early (affects header, navigation, totals).
   try {
     const mid = parseMockIdFromUrl();
-    EXAM = String(mid) === "2" ? EXAM2 : EXAM1;
+    EXAM = getExamByMockId(mid);
   } catch {
     EXAM = EXAM1;
   }
