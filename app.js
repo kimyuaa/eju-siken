@@ -1711,6 +1711,133 @@ function writeJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
 }
 
+// -----------------------------
+// Exam session snapshot (source of truth for report payload)
+// -----------------------------
+function examSessionIdKey(mockId = parseMockIdFromUrl()) {
+  return `nihongo:examSessionId:mock${String(mockId)}`;
+}
+
+function examSessionDataKey(sessionId) {
+  return `nihongo:examSession:${String(sessionId)}`;
+}
+
+function newSessionId(mockId) {
+  const m = String(mockId);
+  const r = Math.random().toString(16).slice(2);
+  return `${m}-${Date.now()}-${r}`;
+}
+
+function getExamSession(mockId = parseMockIdFromUrl()) {
+  try {
+    const sid = sessionStorage.getItem(examSessionIdKey(mockId));
+    if (!sid) return null;
+    const s = readJson(examSessionDataKey(sid), null);
+    if (!s || typeof s !== "object") return null;
+    if (!Array.isArray(s.questions)) s.questions = [];
+    return s;
+  } catch {
+    return null;
+  }
+}
+
+function saveExamSession(session) {
+  if (!session || typeof session !== "object") return;
+  if (!session.sessionId) return;
+  writeJson(examSessionDataKey(session.sessionId), session);
+}
+
+function stripHtmlText(html) {
+  return stripHtml(html || "");
+}
+
+function createExamSessionFromCurrentExam(mockId = parseMockIdFromUrl()) {
+  const sid = newSessionId(mockId);
+  /** @type {any} */
+  const session = {
+    sessionId: sid,
+    mockId: String(mockId),
+    examTitle: EXAM?.title || "",
+    startedAt: Date.now(),
+    questions: [],
+  };
+
+  const passages = Array.isArray(EXAM?.passages) ? EXAM.passages : [];
+  passages.forEach((p) => {
+    const passageJa = stripHtmlText(p?.jpHtml || p?.passageJa || "");
+    const passageKo =
+      stripHtmlText(p?.koHtml || p?.passageKo || "") ||
+      String(localStorage.getItem(translateCacheKey(String(mockId), String(p?.id || ""))) || "");
+    const qs = Array.isArray(p?.questions) ? p.questions : [];
+    qs.forEach((q) => {
+      const questionId = `${String(p?.id || "p")}:${String(q?.id || q?.qId || "q")}`;
+      session.questions.push({
+        questionId,
+        passageJa,
+        passageKo: passageKo || "",
+        questionJa: String(q?.prompt || ""),
+        choicesJa: Array.isArray(q?.choices) ? q.choices.slice() : [],
+        correctAnswer: Number.isFinite(Number(q?.answerIndex)) ? Number(q.answerIndex) : null,
+        userChoice: null,
+        isWrong: false,
+      });
+    });
+  });
+
+  try {
+    sessionStorage.setItem(examSessionIdKey(mockId), sid);
+  } catch {
+    // ignore
+  }
+  saveExamSession(session);
+  return session;
+}
+
+function updateExamSessionAnswer({ mockId, passage, question, userChoice }) {
+  const s = getExamSession(mockId);
+  if (!s) return;
+  const pid = String(passage?.id || "p");
+  const qid = String(question?.id || question?.qId || "q");
+  const questionId = `${pid}:${qid}`;
+
+  const it = Array.isArray(s.questions) ? s.questions.find((x) => x && x.questionId === questionId) : null;
+  if (!it) return;
+
+  it.userChoice = typeof userChoice === "number" ? userChoice : null;
+  const ca = it.correctAnswer;
+  it.isWrong = typeof it.userChoice === "number" && typeof ca === "number" ? it.userChoice !== ca : false;
+
+  // Keep passageKo updated if we later fetched/stored it.
+  if (!it.passageKo) {
+    const ko =
+      stripHtmlText(passage?.koHtml || passage?.passageKo || "") ||
+      String(localStorage.getItem(translateCacheKey(String(mockId), String(pid))) || "");
+    if (ko) it.passageKo = ko;
+  }
+
+  saveExamSession(s);
+}
+
+function buildWrongOnlyReportContextFromSession(mockId = parseMockIdFromUrl()) {
+  const s = getExamSession(mockId);
+  const wrong = (Array.isArray(s?.questions) ? s.questions : []).filter((q) => q && q.isWrong);
+  return {
+    sessionId: String(s?.sessionId || ""),
+    mockId: String(mockId),
+    examTitle: String(s?.examTitle || EXAM?.title || ""),
+    // Only wrong questions (with passage) are sent to server.
+    wrongQuestions: wrong.map((q) => ({
+      questionId: q.questionId,
+      passageJa: q.passageJa,
+      passageKo: q.passageKo || "",
+      questionJa: q.questionJa,
+      choicesJa: Array.isArray(q.choicesJa) ? q.choicesJa : [],
+      correctAnswer: q.correctAnswer,
+      userChoice: q.userChoice,
+    })),
+  };
+}
+
 function getUserLabel() {
   const loggedIn = localStorage.getItem(STORAGE.loggedIn) === "true";
   const name = (localStorage.getItem(STORAGE.userName) || "").trim();
@@ -4968,6 +5095,13 @@ function renderQuestions() {
       input.addEventListener("change", () => {
         updateProgress();
         updatePickedStylesExam();
+        if (!isReviewMode()) {
+          try {
+            updateExamSessionAnswer({ mockId: parseMockIdFromUrl(), passage: p, question: q, userChoice: cIdx });
+          } catch {
+            // ignore
+          }
+        }
         if (!isReviewMode()) saveReadingDraft(p.id, getAnswers());
       });
       if (isReviewMode()) input.disabled = true;
@@ -5052,6 +5186,18 @@ function ensureExamStartedWithConfirm() {
   }
   const now = Date.now();
   sessionStorage.setItem(examStartKey(mockId), String(now));
+
+  // Create a fresh session snapshot (single source of truth for report payload).
+  try {
+    sessionStorage.removeItem(examSessionIdKey(mockId));
+  } catch {
+    // ignore
+  }
+  try {
+    createExamSessionFromCurrentExam(mockId);
+  } catch {
+    // ignore
+  }
   return true;
 }
 
@@ -5665,7 +5811,9 @@ function renderResultPage() {
         return;
       }
 
-      const ctx = buildCtx();
+      // IMPORTANT: Do NOT send the whole original exam data.
+      // Only send wrong questions (with passages) from the session snapshot.
+      const ctx = buildWrongOnlyReportContextFromSession(mockId);
       let url = "";
       try {
         url = String(getReportApiEndpoint() || "");
