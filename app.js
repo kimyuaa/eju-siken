@@ -1,5 +1,5 @@
 const EXAM1 = {
-  title: "EJU 日本語 読解：実戦的超長文 20問 (Final Set)",
+  title: "EJU 日本語 전문 리포트 작성용 모의고사 : 목동 일본어 전지혜쌤",
   level: "EJU",
   passages: [
     {
@@ -869,7 +869,7 @@ const EXAM1 = {
 // Notes: This set provides JP passages/questions + answer key. KO passage translation is not included.
 // ---------------------------------------------------------------------------
 const EXAM2 = {
-  title: "EJU Reading Practice: Full 20-Question Set (Real Exam Style)",
+  title: "EJU 日本語 전문 리포트 작성용 모의고사 : 목동 일본어 전지혜쌤",
   level: "EJU",
   passages: [
     {
@@ -888,9 +888,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>리카도가 제창한 '비교우위' 이론은 자유무역이 모든 참여국에 이익을 가져다준다는 경제학의 금자탑이다. 각국이 상대적으로 자신 있는 산업에 특화하여 서로 교환함으로써 세계 전체의 생산 효율은 극대화된다. 얼핏 보기에 이 조화로운 이론에는 결점이 없는 것처럼 느껴진다. 하지만 현실의 국제 사회에서는 특화가 진행됨에 따라 특정 자원이나 산업에 과도하게 의존할 수밖에 없게 된 개발도상국이 가격 변동이나 정치적 리스크에 극도로 취약해지는 부작용이 드러나고 있다.</p>
+        <p>더욱이 효율성을 최우선으로 하는 무역 구조는 국내 격차를 확대시킨다. 고도의 기술 집약형 산업에 특화된 선진국에서는 그 혜택을 누릴 수 있는 고숙련 노동자와, 저렴한 수입품의 유입으로 직장을 잃는 단순 노동자 사이에 심각한 분열이 생기고 있다. 경제 전체의 파이가 커진다고 해도 그 분배가 적절히 이루어지지 않으면 사회적 불안정화를 초래하는 것은 자명한 이치다.</p>
+        <p>현대의 통상 정책에 요구되는 것은 단순한 통계상의 성장률 추구가 아니라, 자유무역이 가져오는 '고통'을 어떻게 제도적으로 조정할 것인가 하는 관점이다. 효율성이라는 단일한 잣대뿐만 아니라, 경제적인 자율성과 사회적인 공정함을 어떻게 확보할 것인가. 우리는 지금 다시 한번 자유무역의 '질'을 되물어야 할 국면에 서 있다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "提唱", reading: "ていしょう", meaningKo: "제창 (어떤 의견을 앞장서서 주장함)" },
+        { term: "金字塔", reading: "きんじとう", meaningKo: "금자탑 (길이 남을 뛰어난 업적)" },
+        { term: "特化", reading: "とっか", meaningKo: "특화 (특정 분야에 한정하여 전문화함)" },
+        { term: "最大化", reading: "さいだいか", meaningKo: "최대화" },
+        { term: "欠点", reading: "けってん", meaningKo: "결점 (단점)" },
+        { term: "依存", reading: "いぞん", meaningKo: "의존" },
+        { term: "脆弱", reading: "ぜいじゃく", meaningKo: "취약 (무르고 약함)" },
+        { term: "露呈", reading: "ろてい", meaningKo: "노정 (드러냄)" },
+        { term: "享受", reading: "きょうじゅ", meaningKo: "향유 (누림)" },
+        { term: "分断", reading: "ぶんだん", meaningKo: "분단" },
+        { term: "自明", reading: "じめい", meaningKo: "자명 (설명할 필요 없이 명백함)" },
+        { term: "追求", reading: "ついきゅう", meaningKo: "추구" },
+        { term: "調整", reading: "ちょうせい", meaningKo: "조정" },
+        { term: "自律性", reading: "じりつせい", meaningKo: "자율성" },
+        { term: "局面", reading: "きょくめん", meaningKo: "국면 (상황)" }
+      ],
       questions: [
         {
           id: "p1_q1",
@@ -923,9 +941,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>도시라는 공간에서 우리는 낯선 타인과 일상적으로 접하며 생활한다. 사회학자 어빙 고프먼은 이러한 공공 공간에서의 사람들의 행동을 '시민적 무관심'이라고 불렀다. 이는 상대의 존재를 인정하면서도 굳이 과도한 관심을 기울이지 않음으로써 서로의 프라이버시와 자유를 보호하는 고도의 사회적 기술이다. 지하철에서 옆 사람과 눈을 마주치지 않거나 적당한 거리를 유지하는 행위는 냉담함의 표현이 아니라 도시 생활을 원활하게 하기 위한 세련된 예의인 것이다.</p>
+        <p>하지만 현대의 디지털화된 공공 공간에서는 이러한 '기분 좋은 무관심'이 붕괴되고 있다. 스마트폰의 보급으로 개인의 일거수일투족이 쉽게 촬영되고 가시화되었다. 과거에는 공공장소일지라도 그 자리에서만의 익명성에 보호받던 개인의 행동이 순식간에 전 세계에 노출될 위험을 안게 되었다. 이는 시민적 무관심이 제공하던 '타인의 시선으로부터의 자유'라는 보호막이 기술에 의해 찢겨나갔음을 의미한다.</p>
+        <p>이러한 감시 사회화는 공공 공간에서의 우리의 행동을 위축시킨다. 타인으로부터의 예기치 못한 평가나 논란을 두려워한 나머지 사람들은 일탈을 피하고 획일적인 행동을 하게 된다. 도시가 본래 가지고 있던 다양성이나 우연한 만남이라는 매력은 상실되고, 공공 공간은 단순한 감시의 장으로 변질되어 간다. 시민적 무관심이라는 조용한 공생을 어떻게 재구축할 것인가.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "振る舞い", reading: "ふるまい", meaningKo: "행동 (거동)" },
+        { term: "過度", reading: "かど", meaningKo: "과도 (지나침)" },
+        { term: "円滑", reading: "えんかつ", meaningKo: "원활" },
+        { term: "洗練", reading: "せんれん", meaningKo: "세련" },
+        { term: "崩壊", reading: "ほうかい", meaningKo: "붕괴" },
+        { term: "一挙手一投足", reading: "いっきょしゅいっとうそく", meaningKo: "일거수일투족" },
+        { term: "可視化", reading: "かしか", meaningKo: "가시화" },
+        { term: "匿名性", reading: "とくめいせい", meaningKo: "익명성" },
+        { term: "リスクを孕む", reading: "はらむ", meaningKo: "리스크를 내포하다 (품다)" },
+        { term: "萎縮", reading: "いしゅく", meaningKo: "위축" },
+        { term: "予期", reading: "よき", meaningKo: "예기 (미리 예상함)" },
+        { term: "炎上", reading: "えんじょう", meaningKo: "인터넷상에서의 비난 쇄도 (논란)" },
+        { term: "逸脱", reading: "いつだつ", meaningKo: "일탈" },
+        { term: "画一的", reading: "かくいつてき", meaningKo: "획일적" },
+        { term: "変質", reading: "へんしつ", meaningKo: "변질" }
+      ],
       questions: [
         {
           id: "p2_q2",
@@ -958,9 +994,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>민주주의 사회를 지탱하는 '법의 지배'라는 개념은 흔히 '법에 의한 지배'와 혼동되지만, 양자의 본질은 결정적으로 다르다. 전자는 어떤 권력자라도 법에 구속되며 법의 적절한 절차 없이는 개인의 자유를 제한할 수 없다는 권력을 억제하기 위한 원리다. 이에 반해 후자는 권력자가 자신의 의사를 효율적으로 집행하기 위한 '도구'로서 법을 이용하는 것을 가리킨다. 즉, 법의 지배는 '권력으로부터 자유를 지키는 법'이며, 법에 의한 지배는 '권력이 국민을 통치하기 위한 법'인 것이다.</p>
+        <p>법의 지배가 성립하기 위해서는 법의 내용이 보편적인 정의나 인권에 부합한다는 실질적인 정당성이 요구된다. 설령 형식적으로 적절한 절차를 거쳐 제정된 법일지라도 그것이 특정 사람들을 부당하게 차별하거나 기본적 인권을 침해하는 것이라면 그것은 '법의 지배' 이념에 반하게 된다. 법의 지배란 단순히 법을 지키는 것이 아니라, 법 자체가 권력의 자의적인 행사를 막는 방파제로서 기능하고 있는 상태를 가리킨다.</p>
+        <p>현대 사회에서 이 구별은 점점 더 중요성을 더해가고 있다. 복잡한 사회 문제를 해결하기 위해 행정 권력이 비대해지는 가운데, 법이 단순히 편의적인 규칙으로 변질되어 실질적인 정의가 뒷전으로 밀려날 우려가 있기 때문이다. 국민이 법을 '권력을 묶고 자신들의 존엄을 지키는 것'으로 재인식하는 것. 이 의식의 변혁이야말로 법의 지배를 형해화(내용 없이 뼈대만 남게 함)시키지 않기 위한 가장 강력한 기반이 된다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "拘束", reading: "こうそく", meaningKo: "구속 (강제로 억제함)" },
+        { term: "抑制", reading: "よくせい", meaningKo: "억제" },
+        { term: "執行", reading: "しっこう", meaningKo: "집행" },
+        { term: "普遍的", reading: "ふへんてき", meaningKo: "보편적" },
+        { term: "合致", reading: "がっち", meaningKo: "합치 (일치함)" },
+        { term: "妥当性", reading: "だとうせい", meaningKo: "타당성" },
+        { term: "形式的", reading: "けいしきてき", meaningKo: "형식적" },
+        { term: "恣意的", reading: "しいてき", meaningKo: "자의적 (내키는 대로 함)" },
+        { term: "防波堤", reading: "ぼうはてい", meaningKo: "방파제 (막아주는 것)" },
+        { term: "区別", reading: "くべつ", meaningKo: "구별" },
+        { term: "肥大化", reading: "ひだいか", meaningKo: "비대화" },
+        { term: "危惧", reading: "きぐ", meaningKo: "기구 (걱정하고 두려워함)" },
+        { term: "尊厳", reading: "そんげん", meaningKo: "존엄" },
+        { term: "形骸化", reading: "けいがいか", meaningKo: "형해화 (실질 없이 껍데기만 남음)" },
+        { term: "基盤", reading: "きばん", meaningKo: "기반" }
+      ],
       questions: [
         {
           id: "p3_q3",
@@ -993,9 +1047,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>스위스의 언어학자 소쉬르는 말과 그것이 가리키는 대상 사이에는 필연적인 연결 고리가 없다는 '언어의 자의성'을 제창했다. 예를 들어 '강'이라는 개념을 가리키기 위해 일본어에서는 '카와', 영어에서는 '리버'라는 소리를 사용한다. 만약 말과 대상에 필연적인 관계가 있다면 전 세계 언어에서 같은 소리가 쓰여야 하겠지만 실제로는 그렇지 않다. 말은 각 사회가 독자적으로 만들어낸 약속에 불과한 것이다.</p>
+        <p>더욱 중요한 것은 말이 현실 세계를 어떻게 나누는가 하는 '분절화'의 개념이다. 무지개 색을 몇 가지 색으로 부를지, 친척 호칭을 어디까지 세분화할지는 언어에 따라 크게 다르다. 말이 존재하기 전부터 미리 명확한 '경계'가 세상에 그어져 있는 것이 아니라, 언어라는 필터를 통과함으로써 비로소 우리는 혼돈스러운 현실을 의미 있는 단편으로 인식할 수 있는 것이다.</p>
+        <p>이렇게 생각하면 언어를 배우는 것은 단순히 새로운 라벨을 외우는 것이 아니라, 다른 관점에서 세계를 재구축하는 체험이라고 할 수 있다. 어떤 언어 특유의 표현을 아는 것은 그 언어가 가진 독자적인 분절화 논리를 접하는 것이기도 하다. 우리는 자신이 말하는 언어의 틀에 무의식 중에 규정되어 있으며, 언어는 우리가 세계를 이해하기 위한 유일한 창인 동시에 그 시야를 제한하는 우리(cage)이기도 한 것이다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "必然的", reading: "ひつぜんてき", meaningKo: "필연적" },
+        { term: "結びつき", reading: "むすびつき", meaningKo: "결속 (연관)" },
+        { term: "約束事", reading: "やくそくごと", meaningKo: "약속된 사항 (관례)" },
+        { term: "分節化", reading: "ぶんせつか", meaningKo: "분절화 (나누어 마디를 만듦)" },
+        { term: "呼称", reading: "こしょう", meaningKo: "호칭" },
+        { term: "境界", reading: "きょうかい", meaningKo: "경계" },
+        { term: "混沌", reading: "こんとん", meaningKo: "혼돈" },
+        { term: "断片", reading: "だんぺん", meaningKo: "단편" },
+        { term: "構築", reading: "こうちく", meaningKo: "구축" },
+        { term: "特有", reading: "とくゆう", meaningKo: "특유" },
+        { term: "枠組み", reading: "わくぐみ", meaningKo: "틀 (프레임)" },
+        { term: "規定", reading: "きてい", meaningKo: "규정" },
+        { term: "視界", reading: "しかい", meaningKo: "시야" },
+        { term: "制限", reading: "せいげん", meaningKo: "제한" },
+        { term: "檻", reading: "おり", meaningKo: "우리 (감옥)" }
+      ],
       questions: [
         {
           id: "p4_q4",
@@ -1028,9 +1100,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>인간은 자신이 믿고 있는 것과 상충하는 사실을 마주했을 때 강한 정신적 스트레스를 느낀다. 심리학에서는 이를 '인지적 불협화'라고 부른다. 예를 들어 건강을 위해 금연해야 한다는 것을 알면서도 담배를 계속 피우는 사람은 자신의 '지식'과 '행동' 사이에 모순을 안고 있는 셈이다. 이 불쾌한 상태를 해소하기 위해 인간은 행동을 고치기보다 논리를 사후에 덧붙여 모순을 정당화하려는 경향이 있다.</p>
+        <p>금연하지 못하는 사람이 "담배를 피우면 스트레스가 해소되어 오히려 건강에 좋다"고 믿어버리거나 "오래 산 헤비 스모커도 있다"는 예외적인 정보를 수집하는 것이 전형적인 예다. 이처럼 자신에게 유리한 정보만 선택적으로 수용하고 불리한 사실을 무시함으로써 내면의 평온을 유지하려 한다. 이 프로세스에서 객관적인 진실보다 자신의 자존심이나 과거의 선택을 유지하는 것이 우선시되고 만다.</p>
+        <p>이 심리적 메커니즘은 개인의 일상적인 선택뿐만 아니라 조직이나 정치의 의사 결정에도 중대한 영향을 미친다. 한번 결정한 프로젝트가 실패임이 판명되어도 책임자는 "지금까지의 투자를 헛되이 할 수 없다"는 논리로 계속을 주장할 수 있다. 자신의 잘못을 인정하는 데서 오는 인지적 불협화를 피하기 위해 더 큰 손실을 겹치는 악순환에 빠지는 것이다. 우리는 자신의 사고가 '정당화'라는 덫에 걸려 있지 않은지 항상 객관적인 관점에서 끊임없이 의심해야 한다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "不協和", reading: "ふきょうわ", meaningKo: "불협화 (어긋남)" },
+        { term: "矛盾", reading: "むじゅん", meaningKo: "모순" },
+        { term: "後付け", reading: "あとづけ", meaningKo: "사후에 덧붙임 (억지 논리)" },
+        { term: "正当化", reading: "せいとうか", meaningKo: "정당화" },
+        { term: "典型", reading: "てんけい", meaningKo: "전형" },
+        { term: "思い込む", reading: "おもいこむ", meaningKo: "굳게 믿다 (착각하다)" },
+        { term: "受容", reading: "じゅよう", meaningKo: "수용" },
+        { term: "平静", reading: "へいせい", meaningKo: "평정 (침착함)" },
+        { term: "自尊心", reading: "じそんしん", meaningKo: "자존심" },
+        { term: "優先", reading: "ゆうせん", meaningKo: "우선" },
+        { term: "メカニズム", reading: "めかにずむ", meaningKo: "메커니즘 (기제)" },
+        { term: "意思決定", reading: "いしけってい", meaningKo: "의사 결정" },
+        { term: "損失", reading: "そんしつ", meaningKo: "손실" },
+        { term: "悪循環", reading: "あくじゅんかん", meaningKo: "악순환" },
+        { term: "客観的", reading: "きゃっかんてき", meaningKo: "객관적" }
+      ],
       questions: [
         {
           id: "p5_q5",
@@ -1063,9 +1153,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>외래종의 침입이 생태계에 주는 영향이 논의될 때 흔히 '종 다양성'의 유지가 그 근거가 된다. 하지만 단순히 종의 수를 늘리기만 하면 되는 것은 아니다. 생태계의 진정한 가치는 그 땅에서 오랜 세월에 걸쳐 쌓아 올린 '역사성'과 '상호 의존 관계'에 있다. 어느 지역에 원래 없던 종이 급격히 확대되는 것은 수만 년 동안 유지되어 온 종들 사이의 절묘한 균형을 파괴하고 되돌릴 수 없는 변화를 초래한다.</p>
+        <p>외래종이 위협이 되는 가장 큰 이유는 그 장소에 '천적'이 존재하지 않는 경우가 많다는 점에 있다. 억제 메커니즘이 작동하지 않은 채 폭발적으로 증가하는 외래종은 재래종의 서식지를 빼앗고 자원을 고갈시킨다. 이는 단순히 일부 종이 멸종하는 문제에 그치지 않고, 그 종이 담당하던 생태계 내에서의 역할(수분, 종자 산포, 영양 순환 등)이라는 네트워크 전체를 기능 부전에 빠뜨린다.</p>
+        <p>우리가 외래종 대책에 힘쓰는 것은 단순히 '옛날 상태'를 그리워하는 회고주의가 아니다. 생태계가 가진 회복력이나 안정성은 그 땅 특유의 생물들 사이의 복잡한 얽힘에 의해 지탱되기 때문이다. 외래종의 관리는 인간이 파괴해 버린 자연의 역사적 프로세스를 존중하고, 미래를 향해 건전한 생명의 연쇄를 유지하기 위한 책임 있는 개입인 것이다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "侵入", reading: "しんにゅう", meaningKo: "침입" },
+        { term: "根拠", reading: "こんきょ", meaningKo: "근거" },
+        { term: "相互依存", reading: "そうごいぞん", meaningKo: "상호 의존" },
+        { term: "不可逆的", reading: "ふかぎゃくてき", meaningKo: "불가역적 (되돌릴 수 없는)" },
+        { term: "脅威", reading: "きょうい", meaningKo: "위협" },
+        { term: "枯渇", reading: "こかつ", meaningKo: "고갈" },
+        { term: "担う", reading: "になう", meaningKo: "짊어지다 (부담하다)" },
+        { term: "受粉", reading: "じゅふん", meaningKo: "수분 (가루받이)" },
+        { term: "散布", reading: "さんぷ", meaningKo: "산포 (뿌림)" },
+        { term: "機能不全", reading: "きのうふぜん", meaningKo: "기능 부전" },
+        { term: "懐古主義", reading: "かいこしゅぎ", meaningKo: "회고주의 (옛것을 그리워함)" },
+        { term: "回復力", reading: "かいふくりょく", meaningKo: "회복력 (탄성)" },
+        { term: "絡み合い", reading: "からみあい", meaningKo: "서로 얽힘" },
+        { term: "尊重", reading: "そんちょう", meaningKo: "존중" },
+        { term: "介入", reading: "かいにゅう", meaningKo: "개입" }
+      ],
       questions: [
         {
           id: "p6_q6",
@@ -1098,9 +1206,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>철학자 발터 벤야민은 사진이나 영화 같은 '복제 기술'의 등장이 예술의 존재 방식을 근본적으로 바꾸었다고 분석했다. 그에 따르면 과거의 예술 작품에는 그 장소, 그 순간에만 있는 단 하나뿐인 물건으로서의 위엄이나 숭고함을 의미하는 '아우라'가 깃들어 있었다. 예배의 대상이나 권력자의 상징으로서의 회화나 조각은 그것을 직접 감상하는 자에게만 전달되는 독특한 거리감과 신비성을 가지고 있었다.</p>
+        <p>하지만 기술적으로 무한히 복제가 가능해진 현대에 예술 작품의 아우라는 사라져 가고 있다. 복제된 이미지는 장소를 가리지 않고 누구의 손에나 닿으며 작품을 친숙한 것으로 만든다. 이는 '단 하나뿐인 것'이라는 예술의 비의적인 가치를 해체하고 예술을 대중의 것으로 해방하는 과정이기도 했다. 아우라의 상실은 예술이 더 이상 일부 특권층을 위한 의례적인 존재가 아니라 정치적·사회적 비판의 도구로 변모했음을 의미한다.</p>
+        <p>현대에서 우리는 디지털 데이터로서 순식간에 공유되는 무수한 이미지에 둘러싸여 있다. 그곳에서 '아우라'를 찾는 것은 이제 어렵지만, 복제 기술에 의해 가능해진 '새로운 시각 체험'은 우리가 현실을 포착하는 감성을 확장시킨 것도 사실이다. 예술의 가치는 이제 '진품' 여부에 있는 것이 아니라, 그것이 사회에 대해 어떤 의미를 던지고 공유되는가 하는 점으로 옮겨가고 있는 것이다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "崇高", reading: "すうこう", meaningKo: "숭고" },
+        { term: "宿る", reading: "やどる", meaningKo: "깃들다" },
+        { term: "礼拝", reading: "れいはい", meaningKo: "예배" },
+        { term: "象徴", reading: "しょうちょう", meaningKo: "상징" },
+        { term: "神秘性", reading: "しんぴせい", meaningKo: "신비성" },
+        { term: "消失", reading: "しょうしつ", meaningKo: "소실" },
+        { term: "身近", reading: "みぢか", meaningKo: "신변에 가까움 (친숙함)" },
+        { term: "秘儀的", reading: "ひぎてき", meaningKo: "비의적 (신비로운 의식 같은)" },
+        { term: "解体", reading: "かいたい", meaningKo: "해체" },
+        { term: "解放", reading: "かいほう", meaningKo: "해방" },
+        { term: "儀礼的", reading: "ぎれいてき", meaningKo: "의례적" },
+        { term: "拡張", reading: "かくちょう", meaningKo: "확장" },
+        { term: "本物", reading: "ほんもの", meaningKo: "진품 (실물)" },
+        { term: "提示", reading: "ていじ", meaningKo: "제시" },
+        { term: "根底", reading: "こんてい", meaningKo: "근저 (바닥/뿌리)" }
+      ],
       questions: [
         {
           id: "p7_q7",
@@ -1133,9 +1259,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>인터넷 검색 엔진이나 SNS에서 채택하고 있는 '개인 최적화(퍼스널라이즈)' 기술은 우리의 관심사에 맞춘 정보를 효율적으로 제공한다. 하지만 이 편리함의 이면에는 '필터 버블'이라 불리는 심각한 문제가 숨어 있다. 알고리즘이 개인의 취향을 너무 많이 학습함으로써 자신의 생각을 긍정하는 정보만 제시되고, 다른 의견이나 미지의 정보가 차단되어 버리는 현상이다.</p>
+        <p>이 거품 속에 갇히게 되면 자신이 보고 있는 세상이 사회의 전체 모습이라고 착각하게 되어 특정 가치관을 절대시하게 된다. 자신과 다른 입장에 있는 사람들의 논리를 접할 기회를 잃기 때문에 사회적 분열이나 대립이 격화되기 쉽다. 정보의 효율적인 섭취를 추구하는 알고리즘이 역설적으로 우리의 시야를 좁히고 건전한 토론을 어렵게 만들고 있는 것이다.</p>
+        <p>우리가 진정으로 자유로운 주체로서 존재하기 위해서는 알고리즘이 제시하는 정보의 바깥으로 의식적으로 발을 내딛는 노력이 필요하다. 굳이 반대 의견을 조사하거나 미지의 분야를 접하는 '우연한 만남'을 소중히 여겨야 한다. 테크놀로지에 사고를 맡기는 것이 아니라, 정보의 다양성을 스스로 확보하는 자율적인 자세야말로 디지털 시대 리터러시의 핵심이다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "最適化", reading: "さいてきか", meaningKo: "최적화" },
+        { term: "遮断", reading: "しゃだん", meaningKo: "차단" },
+        { term: "絶対視", reading: "ぜったいし", meaningKo: "절대시" },
+        { term: "分断", reading: "ぶんだん", meaningKo: "분단" },
+        { term: "対立", reading: "たいりつ", meaningKo: "대립" },
+        { term: "激化", reading: "げきか", meaningKo: "격화" },
+        { term: "摂取", reading: "せっしゅ", meaningKo: "섭취" },
+        { term: "皮肉", reading: "ひにく", meaningKo: "비꼼 (역설적임)" },
+        { term: "主体", reading: "しゅたい", meaningKo: "주체" },
+        { term: "踏み出す", reading: "ふみだす", meaningKo: "발을 내디뎠다" },
+        { term: "分野", reading: "ぶんや", meaningKo: "분야" },
+        { term: "自律的", reading: "じりつてき", meaningKo: "자율적" },
+        { term: "リテラシー", reading: "りてらしー", meaningKo: "리터러시 (활용 능력)" },
+        { term: "核心", reading: "かくしん", meaningKo: "핵심" },
+        { term: "委ねる", reading: "ゆだねる", meaningKo: "맡기다" }
+      ],
       questions: [
         {
           id: "p8_q8",
@@ -1168,9 +1312,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>황폐해진 변두리나 재개발이 늦어진 지역에 아티스트나 젊은 창업가들이 이주해 오고, 동네의 매력이 높아지면서 부유층이 유입되는 현상을 '젠트리피케이션'이라고 부른다. 이를 통해 치안이 개선되고 빈집이 리모델링되며 새로운 고용이 창출되는 등 경제적인 혜택이 초래된다. 과거에 잊혔던 거리가 활기를 되찾는 모습은 도시 재생의 성공 사례로 찬사받는 경우가 많다.</p>
+        <p>하지만 그 빛나는 발전의 그림자에서 오랫동안 그 땅에 살아온 저소득층이 지가나 임대료 상승으로 인해 거처를 잃는 '내몰림' 문제가 발생하고 있다. 과거의 커뮤니티를 지탱하던 개인 상점들은 체인점으로 대체되고 동네 고유의 문화나 역사는 '소비되는 기호'로 평탄화되어 간다. 결국 젠트리피케이션은 동네를 풍요롭게 만드는 듯 보이지만 사실은 그 땅에 뿌리내린 다양한 사람들의 생활 기반을 파괴하고 있는 측면이 있다.</p>
+        <p>진정으로 지속 가능한 도시 개발이란 단순히 부동산 가치를 높이는 것이 아니라 신구 주민이 공생하고 다양한 경제층이 함께 살 수 있는 메커니즘을 유지하는 데 있다. 행정에 의한 임대료 억제나 커뮤니티의 의사 결정 프로세스 보호 등 시장 원리에만 맡기지 않는 개입이 필수적이다. 동네의 가치란 새롭고 아름다운 건물에 있는 것이 아니라, 그곳에 사는 사람들의 겹겹이 쌓인 삶의 층위 속에 있음을 잊어서는 안 된다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "荒廃", reading: "こうはい", meaningKo: "황폐" },
+        { term: "治安", reading: "ちあん", meaningKo: "치안" },
+        { term: "称賛", reading: "しょうさん", meaningKo: "칭찬 (찬사)" },
+        { term: "高騰", reading: "こうとう", meaningKo: "고등 (물가 등이 급등함)" },
+        { term: "取って代わる", reading: "とってかわる", meaningKo: "대신하다 (대체하다)" },
+        { term: "平滑化", reading: "へいかつか", meaningKo: "평활화 (매끄럽게 고름/단순화)" },
+        { term: "基盤", reading: "きばん", meaningKo: "기반" },
+        { term: "持続可能", reading: "じぞくかのう", meaningKo: "지속 가능" },
+        { term: "共生", reading: "きょうせい", meaningKo: "공생" },
+        { term: "抑制", reading: "よくせい", meaningKo: "억제" },
+        { term: "不可欠", reading: "ふかけつ", meaningKo: "불가결 (필수적임)" },
+        { term: "不動産", reading: "ふどうさん", meaningKo: "부동산" },
+        { term: "反映", reading: "はんえい", meaningKo: "반영" },
+        { term: "恩恵", reading: "おんけい", meaningKo: "은혜 (혜택)" },
+        { term: "活性化", reading: "かっせいか", meaningKo: "활성화" }
+      ],
       questions: [
         {
           id: "p9_q9",
@@ -1203,9 +1365,27 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>현대의 비즈니스 현장에서는 여러 작업을 동시에 해내는 '멀티태스킹'이 유능함의 상징으로 여겨지는 경우가 많다. 메일을 보내면서 회의에 참석하고 틈틈이 자료를 만드는 행위는 얼핏 효율적으로 시간을 활용하는 것처럼 보인다. 하지만 인지 과학 연구에 따르면 인간의 뇌는 엄밀한 의미에서의 멀티태스킹이 불가능하며, 실제로는 작업을 잘게 '전환하고 있는(태스크 스위칭)' 것에 불과하다는 사실이 밝혀졌다.</p>
+        <p>이 빈번한 작업 전환은 뇌에 과도한 부하를 주고 집중력을 현저히 떨어뜨린다. 전환할 때마다 '준비'를 위한 리소스가 소비되기 때문에 한 가지 작업에 깊이 몰두하는 경우에 비해 전체 생산성은 40%나 저하된다는 보고도 있다. 또한 항상 외부 자극에 반응하는 습관은 깊은 사고를 담당하는 전두엽 기능을 약화시켜 창의적인 문제 해결 능력을 손상시킨다.</p>
+        <p>우리가 본래의 능력을 발휘하기 위해서는 멀티태스킹의 환상을 버리고 한 가지 작업에 집중하는 '싱글 태스크' 시간을 의식적으로 확보해야 한다. 디지털 기기의 알림을 끄고 외부와의 접촉을 차단하여 깊고 긴 사고에 잠기는 것. 이 '딥 워크(Deep Work)'야말로 정보가 범람하는 현대에서 가장 희귀하고 가치 있는 기술이 될 것이다.</p>
       `,
-      vocab: [],
+      vocab: [
+        { term: "象徴", reading: "しょうちょう", meaningKo: "상징" },
+        { term: "厳密", reading: "げんみつ", meaningKo: "엄밀" },
+        { term: "消費", reading: "しょうひ", meaningKo: "소비" },
+        { term: "著しい", reading: "いちじるしい", meaningKo: "현저하다 (두드러지다)" },
+        { term: "リソース", reading: "りそーす", meaningKo: "리소스 (자원)" },
+        { term: "損なう", reading: "そこなう", meaningKo: "손상시키다" },
+        { term: "幻想", reading: "げんそう", meaningKo: "환상" },
+        { term: "遮断", reading: "しゃだん", meaningKo: "차단" },
+        { term: "沈む", reading: "しずむ", meaningKo: "가라앉다 (잠기다)" },
+        { term: "稀少", reading: "きしょう", meaningKo: "희소" },
+        { term: "氾濫", reading: "はんらん", meaningKo: "범람" },
+        { term: "意図的", reading: "いとてき", meaningKo: "의도적" },
+        { term: "効率", reading: "こうりつ", meaningKo: "효율" },
+        { term: "維持", reading: "いじ", meaningKo: "유지" },
+        { term: "発揮", reading: "はっき", meaningKo: "발휘" }
+      ],
       questions: [
         {
           id: "p10_q10",
@@ -1238,7 +1418,9 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>심리학자 칙센트미하이가 제창한 '플로우(몰입)'라는 개념은 인간이 어떤 활동에 완전히 빠져들어 시간의 흐름이나 자기 존재조차 잊어버리는 깊은 집중 상태를 말한다. 스포츠 선수가 '존'에 들어갔다고 표현하거나 예술가가 창작에 몰두해 주변 소리가 들리지 않게 되는 상태가 이에 해당한다. 이 플로우 상태에 있을 때 인간은 최고의 퍼포먼스를 발휘할 뿐만 아니라 깊은 충족감과 행복감을 얻을 수 있다고 여겨진다.</p>
+        <p>플로우 상태에 들어가기 위해서는 몇 가지 조건이 필요하다. 가장 중요한 것은 도전하는 과제의 난이도와 자신의 숙련도 레벨이 적절한 균형을 이루는 것이다. 과제가 너무 쉬우면 '지루함'을 느끼고, 너무 어려우면 '불안'을 느끼게 된다. 그 중간에 위치한, 자신의 능력을 최대한 끌어내야만 달성할 수 있는 아슬아슬한 영역이야말로 플로우로 가는 입구가 된다. 또한 명확한 목표가 있고 그에 대한 즉각적인 피드백을 얻을 수 있는 것도 집중을 유지하기 위한 필수 요소다.</p>
+        <p>현대 사회에서 이 플로우 체험의 가치는 재인식되고 있다. 물질적인 충족이나 소비를 통한 쾌락은 일시적인 것에 불과하지만, 활동 자체에서 의미를 찾는 플로우는 지속적인 정신적 풍요를 가져다주기 때문이다. 하지만 정보 과다와 끊임없는 알림에 노출된 현대 생활에서 한 가지에 깊이 집중하는 시간은 점점 빼앗기고 있다. 우리는 의식적으로 환경을 조성하고 스스로의 한계에 도전하는 기회를 만듦으로써, 수동적인 엔터테인먼트로는 얻을 수 없는 진정한 충실감을 되찾아야 한다.</p>
       `,
       vocab: [],
       questions: [
@@ -1286,7 +1468,9 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>물리학의 가장 기본적인 법칙 중 하나로 '열역학 제2법칙'이 있다. 이는 고립된 계에서는 엔트로피(무질서도)가 시간 경과에 따라 반드시 증대하며 최종적으로는 균일하고 무질서한 상태로 향한다는 것이다. 예를 들어 뜨거운 커피가 식어서 방 안의 온도와 같아지는 것처럼 우주의 모든 현상은 구조가 무너지고 흩어지는 방향으로 진행된다. 이 법칙에 따르면 복잡한 구조를 가진 물질이 자발적으로 조직화되는 일은 없으며 세계는 사멸한 균형 상태에 이르게 된다.</p>
+        <p>그런데 생명이라는 존재는 이 법칙에 정면으로 대항하고 있는 것처럼 보인다. 생명체는 외부에서 에너지를 섭취하고 대사를 함으로써 자신의 내부 질서를 유지하고 나아가 복잡한 구조로 성장해 나가기 때문이다. 물리학자 슈뢰딩거는 생명이 외부에서 '음의 엔트로피(네겐트로피)'를 섭취함으로써 자신의 무질서화를 막고 있다고 표현했다. 생명은 물리 법칙이 강요하는 붕괴의 흐름 속에서 국소적으로 역류를 만들어내고 있는 기적적인 현상인 것이다.</p>
+        <p>하지만 생명이 물리 법칙을 완전히 무시하고 있는 것은 아니다. 생명이 내부 질서를 유지하기 위해 그 과정에서 생성된 대량의 열과 노폐물, 즉 엔트로피를 항상 외부로 계속 배출해야만 한다. 즉, 생명체라는 '계' 내부에서는 질서가 유지되지만 그 주변을 포함한 전체로 보면 역시 엔트로피 총량은 계속 증가하고 있는 것이다. 생명은 자신의 질서를 지키는 대가로 환경을 더욱 무질서하게 만드는 데 기여하고 있다고도 할 수 있다.</p>
       `,
       vocab: [],
       questions: [
@@ -1334,7 +1518,9 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>민주주의의 본질이란 무엇인가. 많은 이들은 '다수결'에 의한 의사결정을 떠올릴 것이다. 하지만 단순한 숫자의 힘으로 결론을 내는 것만으로는 소수 의견이 잘려 나가 사회에 심각한 분열을 남길 우려가 있다. 그래서 주목받는 것이 대화를 통해 서로의 입장을 이해하고 더 높은 차원에서의 합의를 지향하는 '숙의 민주주의'라는 생각이다. 숙의란 자신의 주장을 관철하기 위한 협상이 아니라 타인의 의견을 들음으로써 자신의 생각을 변화시킬 가능성에 열려 있는 프로세스다.</p>
+        <p>숙의 민주주의의 최대 장점은 결론에 이르기까지의 '절차적 정당성'을 높인다는 점에 있다. 설령 최종 결론이 내가 원하는 것이 아니더라도 충분히 논의가 이루어지고 내 목소리가 반영되었다는 실감이 있다면 그 결과를 납득하고 받아들이기 쉬워진다. 또한 다양한 관점의 비판을 거침으로써 일부 집단에 의한 독단적인 결정을 방지하고 더 현명하고 균형 잡힌 정책이 형성될 가능성이 높아지는 것이다.</p>
+        <p>하지만 숙의의 실천에는 많은 어려움도 따른다. 시간과 비용이 드는 것은 물론, 참가자가 감정적인 대립을 극복하고 논리적이며 상호 호혜적인 태도를 유지해야 하기 때문이다. 특히 정보의 편중이나 권력 격차가 존재할 경우 목소리 큰 일부 참가자가 논의를 지배할 위험도 있다. 진정한 숙의를 실현하기 위해서는 모든 참가자가 대등하게 발언할 수 있는 환경 정비와 서로의 이질성을 존중하는 시민적 도덕심이 필수적이다.</p>
       `,
       vocab: [],
       questions: [
@@ -1382,7 +1568,9 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>우리는 일상적으로 자신의 의지로 행동을 선택한다고 믿는다. 하지만 근대 과학의 발전은 '결정론'이라는 강력한 시각을 가져왔다. 이는 우주의 모든 현상은 물리 법칙을 따르며 과거의 상태로부터 미래의 상태가 유일하게 결정된다는 생각이다. 만약 우리의 뇌도 물질이며 물리 법칙이나 신경 전달 메커니즘에서 벗어날 수 없다면 '선택했다'고 믿는 의지도 사실은 인과관계의 연쇄에 의해 필연적으로 도출된 결과에 불과한 것이 된다.</p>
+        <p>이 결정론과 자유의지의 모순은 우리의 책임이라는 개념의 근거를 흔든다. 만약 행동이 모두 사전에 결정되어 있다면 범죄를 저지른 자를 처벌하는 것도, 선행을 찬양하는 것도 논리적으로 불가능해지기 때문이다. 하지만 최근의 뇌과학 실험에서는 우리가 '의도했다'고 의식하기 전부터 뇌 안에서 행동 준비가 시작되고 있다는 결과도 보고되고 있다. 이는 의지가 행동을 일으키는 것이 아니라, 뇌가 자동적으로 시작한 프로세스를 나중에 의식이 '내가 결정했다'고 추인하고 있을 뿐일 가능성을 시사한다.</p>
+        <p>설령 물리적으로 자유가 환상일지라도 우리가 스스로를 자유로운 주체로 대우하고 서로 책임을 묻는다는 '실천적인 신념'을 포기할 수는 없다. 사회 질서나 인간의 존엄을 유지하기 위해서는 과학적인 진리와 우리가 살아가는 데 필요한 사회적·윤리적 요청 사이에서 절충안을 찾아야 한다. 우리는 과학적 지견을 인정하면서도 여전히 '자유로운 것처럼' 계속 행동해야 하는 숙명을 짊어지고 있는 것이다.</p>
       `,
       vocab: [],
       questions: [
@@ -1430,7 +1618,9 @@ const EXAM2 = {
         </p>
       `,
       translationKoHtml: `
-        <p>(해석 없음)</p>
+        <p>근대 건축의 아버지라 불리는 르 코르뷔지에는 집을 '살기 위한 기계'라고 정의했다. 낭비를 걷어내고 합리성과 기능을 추구함으로써 인간의 생활을 효율화하고 더 풍요롭게 만들 수 있다고 생각한 것이다. 이 기능주의 사상은 도시의 과밀화를 해결하고 표준화된 쾌적한 주거를 대량으로 제공하는 데 크게 기여했다. 직선을 기조로 한 아름다운 조형미는 현대에 있어서도 많은 건축의 모범이 되고 있다.</p>
+        <p>하지만 극한까지 기능을 파고든 공간이 반드시 인간에게 '안락함(居心地)'을 주는 것은 아니다. 인간은 단순히 효율적으로 움직이는 존재가 아니라 그때그때의 기분이나 빛의 흔들림, 소재의 감촉 같은 비합리적인 감각에 깊이 좌우되는 존재이기 때문이다. 모든 것이 관리되고 목적화된 공간 속에서 우리의 정신은 오히려 답답함을 느끼며 안식을 얻을 수 없다. 기능성은 '편리함'을 주지만, 안락함은 '존재의 온전한 긍정'에서 생겨난다.</p>
+        <p>뛰어난 건축이란 기능이라는 '이성(理)'과 안락함이라는 '감성(感)'의 고도화된 대화가 성립하는 장소다. 생활 동선이 확보됨과 동시에 어딘가 목적 없는, 낭비처럼 보이는 여유나 그림자가 남아 있을 것. 우리는 완벽하게 프로그램된 기계 같은 공간이 아니라 자신의 신체나 기억이 자유롭게 노닐 수 있는 '여백'을 원하고 있다. 건축가가 도전해야 할 과제는 합리성의 끝에서 여전히 남겨져야 할 인간적인 비합리성을 어떻게 형상화할 것인가 하는 난제이다.</p>
       `,
       vocab: [],
       questions: [
@@ -1465,6 +1655,16 @@ const EXAM2 = {
   ],
 };
 
+// --- Mock Exam 3 (imported) -------------------------------------------------
+// Source: user's `eju siken3.rtf` parsed into `.tmp_exam3.json`
+// Loaded at runtime to avoid huge bundle edits.
+// ---------------------------------------------------------------------------
+const EXAM3 = {
+  title: "EJU 日本語 전문 리포트 작성용 모의고사 : 목동 일본어 전지혜쌤",
+  level: "EJU",
+  passages: [],
+};
+
 /** Active exam set (selected by `mock` query param). */
 let EXAM = EXAM1;
 
@@ -1486,8 +1686,15 @@ let graded = false;
 let timerId = null;
 let homeRange = "7"; // "7" | "all"
 
+// Exam start timer (40 minutes, per-mock, per-tab).
+let examTimerId = null;
+
 function getExamByMockId(mockId) {
-  return String(mockId) === "2" ? EXAM2 : EXAM1;
+  const id = String(mockId);
+  if (id === "1") return EXAM1;
+  if (id === "2") return EXAM2;
+  if (id === "3") return EXAM3;
+  return EXAM1;
 }
 
 function readJson(key, fallback) {
@@ -1744,7 +1951,8 @@ function stripHtml(html) {
 }
 
 function translateCacheKey(mockId, passageId) {
-  return `nihongo:translation:mock${String(mockId)}:passage:${String(passageId)}:v1`;
+  // v2: invalidate old cached "local gloss" placeholders for mock2
+  return `nihongo:translation:mock${String(mockId)}:passage:${String(passageId)}:v2`;
 }
 
 function getTranslateApiEndpoint() {
@@ -1769,24 +1977,57 @@ async function ensureKoreanTranslation({ mockId, passage }) {
   if (!text) return null;
 
   const url = getTranslateApiEndpoint();
-  const resp = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, locale: "ko" }),
-  });
-  if (!resp.ok) {
-    // Best-effort: don't block grading UX.
-    return null;
+  // Best-effort with light retry for 429.
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, locale: "ko" }),
+    });
+    if (!resp.ok) {
+      if (resp.status === 429) {
+        const j429 = await resp.json().catch(() => null);
+        const retryAfterSec = Number(j429?.retryAfterSec);
+        const waitMs = Number.isFinite(retryAfterSec) ? Math.max(1500, retryAfterSec * 1000) : 2500;
+        await new Promise((r) => setTimeout(r, waitMs));
+        continue;
+      }
+      return null;
+    }
+    const j = await resp.json().catch(() => null);
+    const html = typeof j?.html === "string" ? j.html : "";
+    if (!html.trim()) return null;
+    try {
+      localStorage.setItem(key, html);
+    } catch {
+      // ignore
+    }
+    return html;
   }
-  const j = await resp.json().catch(() => null);
-  const html = typeof j?.html === "string" ? j.html : "";
-  if (!html.trim()) return null;
-  try {
-    localStorage.setItem(key, html);
-  } catch {
-    // ignore
+  return null;
+}
+
+async function prefetchKoreanTranslationsForMock(mockId) {
+  const id = String(mockId);
+  if (id !== "2") return;
+  if (!window.__prefetchKo__) window.__prefetchKo__ = {};
+  if (window.__prefetchKo__[id]) return;
+  window.__prefetchKo__[id] = true;
+
+  const passages = getMockPassages(id);
+  for (let i = 0; i < passages.length; i += 1) {
+    const p = passages[i];
+    if (!p?.id) continue;
+    const key = translateCacheKey(id, p.id);
+    const cached = localStorage.getItem(key);
+    if (!cached || !cached.trim()) {
+      // best-effort; don't block UI
+      // eslint-disable-next-line no-await-in-loop
+      await ensureKoreanTranslation({ mockId: id, passage: p }).catch(() => null);
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((r) => setTimeout(r, 250));
+    }
   }
-  return html;
 }
 
 function pickSampleSentence(text, term) {
@@ -1797,6 +2038,309 @@ function pickSampleSentence(text, term) {
   const s = (hit || parts[0] || "").trim();
   if (!s) return "";
   return s.length > 180 ? `${s.slice(0, 180)}…` : s;
+}
+
+async function ensureTangosi2Imported() {
+  if (window.__tangosi2Import__) return window.__tangosi2Import__;
+  window.__tangosi2Import__ = (async () => {
+    // Only used for Mock 2; file is generated from user's tangosi2.md (RTF -> txt -> json)
+    const url = "./.tmp_tangosi2_vocab.json";
+    const resp = await fetch(url, { cache: "no-store" }).catch(() => null);
+    if (!resp || !resp.ok) return false;
+    const j = await resp.json().catch(() => null);
+    if (!j || typeof j !== "object") return false;
+    if (typeof EXAM2 !== "object" || !Array.isArray(EXAM2.passages)) return false;
+
+    for (let i = 0; i < EXAM2.passages.length; i += 1) {
+      const key = String(i + 1);
+      const items = Array.isArray(j?.[key]?.items) ? j[key].items : null;
+      if (!items || !items.length) continue;
+      EXAM2.passages[i].vocab = items.map((v) => ({
+        term: String(v?.term || "").trim(),
+        reading: String(v?.reading || "").trim(),
+        meaningKo: String(v?.meaningKo || "").trim(),
+        ex1Jp: String(v?.ex1Jp || "").trim(),
+        ex1Ko: String(v?.ex1Ko || "").trim(),
+        ex2Jp: String(v?.ex2Jp || "").trim(),
+        ex2Ko: String(v?.ex2Ko || "").trim(),
+        tag: String(v?.tag || "").trim(),
+      }));
+    }
+    return true;
+  })();
+  return window.__tangosi2Import__;
+}
+
+async function ensureSiken3Imported() {
+  if (window.__siken3Import__) return window.__siken3Import__;
+  window.__siken3Import__ = (async () => {
+    const url = "./siken3_normalized.json";
+    const resp = await fetch(url, { cache: "no-store" }).catch(() => null);
+    if (!resp || !resp.ok) return false;
+    const j = await resp.json().catch(() => null);
+    const qs = Array.isArray(j?.questions) ? j.questions : [];
+    if (!qs.length) return false;
+
+    // Local-only vocab for Mock3 (source of truth: siken3.txt -> siken3_vocab.json).
+    let vocabByNo = {};
+    try {
+      const vResp = await fetch("./siken3_vocab.json", { cache: "no-store" }).catch(() => null);
+      if (vResp && vResp.ok) {
+        const vj = await vResp.json().catch(() => null);
+        vocabByNo = vj && typeof vj === "object" && vj.vocab && typeof vj.vocab === "object" ? vj.vocab : {};
+      }
+    } catch {
+      vocabByNo = {};
+    }
+
+    // Build EXAM3 from normalized questions.
+    // NOTE: For Mock3, Q11+ is structured as "1 passage, 2 questions".
+    // We group by identical passage text (and title), preserving order of appearance.
+    EXAM3.title = "EJU 日本語 전문 리포트 작성용 모의고사 : 목동 일본어 전지혜쌤";
+    EXAM3.level = "EJU";
+    const keyOf = (q) => `${String(q?.titleJa || "").trim()}@@${String(q?.passageJa || "").trim()}`;
+    const passageNoFromQuestionNo = (no) => {
+      const n = Number(no);
+      if (!Number.isFinite(n) || n <= 0) return 1;
+      if (n <= 10) return n;
+      return Math.floor((n - 11) / 2) + 11; // 11-12 -> 11, 13-14 -> 12, ... 21-22 -> 16
+    };
+
+    /** @type {Array<{ firstQ:any, qs:any[] }>} */
+    const groups = [];
+    const groupIdxByKey = new Map();
+    for (let i = 0; i < qs.length; i += 1) {
+      const q = qs[i];
+      const k = keyOf(q);
+      if (!groupIdxByKey.has(k)) {
+        groupIdxByKey.set(k, groups.length);
+        groups.push({ firstQ: q, qs: [q] });
+      } else {
+        groups[groupIdxByKey.get(k)].qs.push(q);
+      }
+    }
+
+    const totalPassages = groups.length;
+    EXAM3.passages = groups.map((g, pIdx) => {
+      const q0 = g.firstQ;
+      const pNo = passageNoFromQuestionNo(q0?.no || (pIdx + 1));
+      const vocabKey = String(pNo);
+      const vItems = Array.isArray(vocabByNo?.[vocabKey]?.items) ? vocabByNo[vocabKey].items : [];
+      return {
+        id: `p${pIdx + 1}`,
+        label: `지문 ${pNo} / ${totalPassages}`,
+        title: String(q0?.titleJa || `지문 ${pNo}`),
+        jpHtml: (String(q0?.passageJa || "").trim() || "").split(/\n+/).filter(Boolean).map((p) => `<p>${escapeHtml(p)}</p>`).join(""),
+        translationKoHtml: (String(q0?.passageKo || "").trim() || "<p>(해석 없음)</p>").split(/\n+/).filter(Boolean).map((p) => `<p>${escapeHtml(p)}</p>`).join(""),
+        vocab: vItems.map((v) => ({
+          term: String(v?.term || "").trim(),
+          reading: String(v?.reading || "").trim(),
+          meaningKo: String(v?.meaningKo || "").trim(),
+          ex1Jp: String(v?.ex1Jp || "").trim(),
+          ex1Ko: String(v?.ex1Ko || "").trim(),
+          ex2Jp: String(v?.ex2Jp || "").trim(),
+          ex2Ko: String(v?.ex2Ko || "").trim(),
+          tag: String(v?.tag || "").trim(),
+        })),
+        questions: g.qs.map((q) => ({
+          id: `p${pIdx + 1}_q${Number(q?.no || "") || (pIdx + 1)}`,
+          prompt: String(q?.stemJa || "").trim(),
+          choices: Array.isArray(q?.choicesJa) ? q.choicesJa : [],
+          answerIndex: q?.answer ? Math.max(0, Number(q.answer) - 1) : 0,
+          explanation: "",
+          explanationKo: q?.explanationKo || "",
+        })),
+      };
+    });
+    return EXAM3.passages.length > 0;
+  })();
+  return window.__siken3Import__;
+}
+
+async function ensureTansi1Imported() {
+  if (window.__tansi1Import__) return window.__tansi1Import__;
+  window.__tansi1Import__ = (async () => {
+    try {
+      const url = "./tansi1_vocab.json";
+      const resp = await fetch(url, { cache: "no-store" }).catch(() => null);
+      if (!resp || !resp.ok) return false;
+      const j = await resp.json().catch(() => null);
+      if (!j || typeof j !== "object") return false;
+      if (typeof EXAM1 !== "object" || !Array.isArray(EXAM1.passages)) return false;
+
+      for (let i = 0; i < EXAM1.passages.length; i += 1) {
+        const key = String(i + 1);
+        const items = Array.isArray(j?.[key]?.items) ? j[key].items : null;
+        if (!items || !items.length) continue;
+        EXAM1.passages[i].vocab = items.map((v) => ({
+          term: String(v?.term || "").trim(),
+          reading: String(v?.reading || "").trim(),
+          meaningKo: String(v?.meaningKo || "").trim(),
+          ex1Jp: String(v?.ex1Jp || "").trim(),
+          ex1Ko: String(v?.ex1Ko || "").trim(),
+          ex2Jp: String(v?.ex2Jp || "").trim(),
+          ex2Ko: String(v?.ex2Ko || "").trim(),
+          tag: String(v?.tag || "").trim(),
+        }));
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+  return window.__tansi1Import__;
+}
+
+function tryImportSiken3Sync() {
+  try {
+    if (Array.isArray(EXAM3.passages) && EXAM3.passages.length) return true;
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "./siken3_normalized.json", false); // sync: load before first render (local-first UX)
+    xhr.send(null);
+    if (xhr.status < 200 || xhr.status >= 300) return false;
+    const j = JSON.parse(String(xhr.responseText || "{}"));
+    const qs = Array.isArray(j?.questions) ? j.questions : [];
+    if (!qs.length) return false;
+
+    // Sync-load local vocab for Mock3 (siken3_vocab.json).
+    let vocabByNo = {};
+    try {
+      const vxhr = new XMLHttpRequest();
+      vxhr.open("GET", "./siken3_vocab.json", false);
+      vxhr.send(null);
+      if (vxhr.status >= 200 && vxhr.status < 300) {
+        const vj = JSON.parse(String(vxhr.responseText || "{}"));
+        vocabByNo = vj && typeof vj === "object" && vj.vocab && typeof vj.vocab === "object" ? vj.vocab : {};
+      }
+    } catch {
+      vocabByNo = {};
+    }
+
+    EXAM3.title = "EJU 日本語 전문 리포트 작성용 모의고사 : 목동 일본어 전지혜쌤";
+    EXAM3.level = "EJU";
+
+    const keyOf = (q) => `${String(q?.titleJa || "").trim()}@@${String(q?.passageJa || "").trim()}`;
+    const passageNoFromQuestionNo = (no) => {
+      const n = Number(no);
+      if (!Number.isFinite(n) || n <= 0) return 1;
+      if (n <= 10) return n;
+      return Math.floor((n - 11) / 2) + 11;
+    };
+
+    /** @type {Array<{ firstQ:any, qs:any[] }>} */
+    const groups = [];
+    const groupIdxByKey = new Map();
+    for (let i = 0; i < qs.length; i += 1) {
+      const q = qs[i];
+      const k = keyOf(q);
+      if (!groupIdxByKey.has(k)) {
+        groupIdxByKey.set(k, groups.length);
+        groups.push({ firstQ: q, qs: [q] });
+      } else {
+        groups[groupIdxByKey.get(k)].qs.push(q);
+      }
+    }
+
+    const totalPassages = groups.length;
+    EXAM3.passages = groups.map((g, pIdx) => {
+      const q0 = g.firstQ;
+      const pNo = passageNoFromQuestionNo(q0?.no || (pIdx + 1));
+      const vocabKey = String(pNo);
+      const vItems = Array.isArray(vocabByNo?.[vocabKey]?.items) ? vocabByNo[vocabKey].items : [];
+      return {
+        id: `p${pIdx + 1}`,
+        label: `지문 ${pNo} / ${totalPassages}`,
+        title: String(q0?.titleJa || `지문 ${pNo}`),
+        jpHtml: (String(q0?.passageJa || "").trim() || "").split(/\n+/).filter(Boolean).map((p) => `<p>${escapeHtml(p)}</p>`).join(""),
+        translationKoHtml: (String(q0?.passageKo || "").trim() || "<p>(해석 없음)</p>").split(/\n+/).filter(Boolean).map((p) => `<p>${escapeHtml(p)}</p>`).join(""),
+        vocab: vItems.map((v) => ({
+          term: String(v?.term || "").trim(),
+          reading: String(v?.reading || "").trim(),
+          meaningKo: String(v?.meaningKo || "").trim(),
+          ex1Jp: String(v?.ex1Jp || "").trim(),
+          ex1Ko: String(v?.ex1Ko || "").trim(),
+          ex2Jp: String(v?.ex2Jp || "").trim(),
+          ex2Ko: String(v?.ex2Ko || "").trim(),
+          tag: String(v?.tag || "").trim(),
+        })),
+        questions: g.qs.map((q) => ({
+          id: `p${pIdx + 1}_q${Number(q?.no || "") || (pIdx + 1)}`,
+          prompt: String(q?.stemJa || "").trim(),
+          choices: Array.isArray(q?.choicesJa) ? q.choicesJa : [],
+          answerIndex: q?.answer ? Math.max(0, Number(q.answer) - 1) : 0,
+          explanation: "",
+          explanationKo: q?.explanationKo || "",
+        })),
+      };
+    });
+    return EXAM3.passages.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function tangosi2ImportVersionKey(mockId) {
+  return `nihongo:tangosi2:import:mock${String(mockId)}:v1`;
+}
+
+function ensureTangosi2AppliedToQuizState(mockId) {
+  const id = String(mockId);
+  if (id !== "2") return;
+  const CURRENT = "1";
+  const prev = String(localStorage.getItem(tangosi2ImportVersionKey(id)) || "");
+  if (prev === CURRENT) return;
+
+  // tangosi2 just became available (or code updated): invalidate previously cached quiz set
+  // so questions pick up ex1/ex2 fields from local vocab.
+  const st = loadVocabState(id);
+  ensureJlptState(st);
+  st.jlpt.set.questions = [];
+  st.jlpt.set.graded = false;
+  st.jlpt.set.ts = 0;
+  st.jlpt.set.usedExamples = [];
+  saveVocabState(id, st);
+  try {
+    localStorage.setItem(tangosi2ImportVersionKey(id), CURRENT);
+  } catch {
+    // ignore
+  }
+}
+
+function findExampleSentencesForTerm(mockId, term, max = 2) {
+  const t = String(term || "").trim();
+  if (!t) return [];
+  const passages = getMockPassages(mockId);
+  /** @type {string[]} */
+  const out = [];
+  const seen = new Set();
+  for (let pIdx = 0; pIdx < passages.length; pIdx += 1) {
+    const text = stripHtml(passages[pIdx]?.jpHtml || "");
+    if (!text) continue;
+    const parts = text.replace(/\s+/g, " ").split(/(?<=[。！？!?])\s*/);
+    for (let i = 0; i < parts.length; i += 1) {
+      const s = String(parts[i] || "").trim();
+      if (!s || !s.includes(t)) continue;
+      const fin = s.endsWith("。") || s.endsWith("！") || s.endsWith("？") || s.endsWith("!") || s.endsWith("?") ? s : `${s}。`;
+      if (seen.has(fin)) continue;
+      seen.add(fin);
+      out.push(fin.length > 180 ? `${fin.slice(0, 180)}…` : fin);
+      if (out.length >= max) return out;
+    }
+  }
+  return out;
+}
+
+function escapeHtmlText(s) {
+  return escapeHtml(String(s || ""));
+}
+
+function highlightTermHtml(sentence, term) {
+  const s = String(sentence || "");
+  const t = String(term || "").trim();
+  if (!s || !t) return escapeHtmlText(s);
+  if (!s.includes(t)) return escapeHtmlText(s);
+  const parts = s.split(t);
+  return parts.map(escapeHtmlText).join(`<mark class="hlTerm">${escapeHtmlText(t)}</mark>`);
 }
 
 function generateNaturalExamples(term) {
@@ -1879,22 +2423,13 @@ function generateNaturalExamples(term) {
 function guessUsageKo(term) {
   const t = String(term || "").trim();
   if (!t) return "";
-  // "구체 주제"만. 군더더기/효과 문구 금지.
-  if (/(環境|温暖化|汚染|資源|共生|倫理)/.test(t)) return "환경·기후·지속가능성(정책/시사)";
-  if (/(AI|生成AI|教育|好奇心)/.test(t)) return "교육·학습·AI(기술/사회)";
-  if (/(記憶|心理|自己|アイデンティティ)/.test(t)) return "심리·기억·자아(인문)";
-  if (/(都市|再開発|公共|空間)/.test(t)) return "도시·공간·재개발(사회)";
-  if (/(仕事|労働|報酬|休息|職業)/.test(t)) return "노동·직장·커리어(사회)";
-  if (/(伝統|文化|継承|芸能|工芸)/.test(t)) return "전통·문화·계승(인문)";
-  if (/(失敗|挑戦|回復力|レジリエンス)/.test(t)) return "도전·실패·회복(자기계발/심리)";
-  if (/(科学|データ|根拠|前提|変数)/.test(t)) return "과학적 사고·비판적 사고(논설)";
-  if (/(共有|所有|消費|経済|サブスクリプション)/.test(t)) return "소비·경제·공유(사회)";
-
-  if (t.endsWith("化")) return "변화/전환(사회·시사)";
-  if (t.endsWith("性")) return "성질/특성(논설·설명문)";
-  if (t.endsWith("力")) return "능력/역량(교육·심리)";
-  if (t.endsWith("主義")) return "사상/이념(사회·인문)";
-  if (t.endsWith("倫理")) return "윤리(사회)";
+  // 단어시험 해설용 "주제별 빈도"는 3분류로 고정
+  // - 추상 개념 → 논설·설명문(인문/사회)
+  // - 자연/과학 → 과학·기술
+  // - 감정/인지 → 심리
+  if (/(感情|心理|記憶|認知|注意|集中|不安|葛藤|自己|自我|モチベーション)/.test(t)) return "심리";
+  if (/(科学|技術|データ|実験|装置|生態|環境|温暖化|資源|物理|化学|生物|AI|生成AI)/.test(t)) return "과학·기술";
+  // 기본: 추상 개념/사회적 논설
   return "논설·설명문(인문/사회)";
 }
 
@@ -1924,6 +2459,153 @@ function cleanKoMeaning(meaningKo) {
   if (!m) return "";
   // prefer first chunk before commas/parentheses
   return m.split(/[,(]/)[0].trim();
+}
+
+function buildEjuExplanationForWord({ term, reading, meaningKo }) {
+  const t = String(term || "").trim();
+  const r = String(reading || "").trim();
+  const m = String(meaningKo || "").trim();
+  const topic = guessUsageKo(t);
+
+  // EJU 논설 스타일: 예문 출력 금지, 설명 2문장 고정
+  const desc1 = m
+    ? `문맥에서 ${t}는 ‘${cleanKoMeaning(m)}’의 의미로 쓰이며, 핵심 주장/근거를 잡는 기준어로 기능한다.`
+    : `문맥에서 ${t}는 글의 핵심 주장/근거를 잡는 기준어로 기능한다.`;
+  const desc2 = `선택지 판단에서는 ${t}가 가리키는 범위(대상·조건·관계)를 원문에서 확인하고, 과장/축소 없이 그대로 대응시키는 것이 중요하다.`;
+
+  return [
+    "해설 (한국어)",
+    `${t}${r ? ` (${r})` : ""}${m ? ` · ${m}` : ""}`.trim(),
+    "",
+    `1) ${desc1}`,
+    `2) ${desc2}`,
+    "",
+    `주제별 빈도: ${topic}`,
+  ].join("\n");
+}
+
+function buildLocalOnlyExplanation({ term, reading, meaningKo, ex1Jp, ex1Ko, ex2Jp, ex2Ko }) {
+  // Source of truth: tangosi2 only. Do NOT generate or infer any missing content.
+  const t = String(term || "").trim();
+  const r = String(reading || "").trim();
+  const m = String(meaningKo || "").trim();
+  const aJp = String(ex1Jp || "").trim();
+  const aKo = String(ex1Ko || "").trim();
+  const bJp = String(ex2Jp || "").trim();
+  const bKo = String(ex2Ko || "").trim();
+  return [
+    "해설 (한국어)",
+    `${t}${r ? ` (${r})` : ""}${m ? ` · ${m}` : ""}`.trim(),
+    "",
+    `1) ${aJp}${aKo ? ` (${aKo})` : ""}`.trim(),
+    `2) ${bJp}${bKo ? ` (${bKo})` : ""}`.trim(),
+  ].join("\n");
+}
+
+function inferTopicFrequency({ term, meaningKo, ex1Jp, ex2Jp }) {
+  const t = String(term || "");
+  const m = String(meaningKo || "");
+  const a = String(ex1Jp || "");
+  const b = String(ex2Jp || "");
+  const s = `${t} ${m} ${a} ${b}`;
+
+  // More fine-grained topic inference to avoid overusing the default label.
+  if (/(経済|消費|市場|物価|賃金|雇用|景気|貿易|投資|企業|金融|税|保険|産業|供給|需要|インフレ|デフレ)/.test(s)) return "경제·사회";
+  if (/(教育|学習|学校|授業|試験|受験|学力|教材|講義|評価|指導|訓練)/.test(s)) return "교육";
+
+  // Psychology / cognition
+  if (/(感情|心理|記憶|認知|注意|集中|不安|葛藤|態度|意欲|動機|ストレス|共感|擬人化)/.test(s)) return "심리";
+
+  // Science / technology (incl. data/AI)
+  if (/(科学|技術|データ|実験|装置|測定|解析|モデル|シミュレーション|AI|生成AI|アルゴリズム|ナビゲーション|磁場|網膜)/.test(s)) return "과학·기술";
+
+  // Environment / climate / resources
+  if (/(環境|生態系|温暖化|気候|異常気象|豪雨|干魃|資源|森林|海洋|サンゴ|白化|エルニーニョ|ヒートアイランド)/.test(s)) return "환경·기후";
+
+  // Biology / evolution / ecology (non-climate)
+  if (/(生物|繁殖|進化|共進化|種子|発芽|動植物|昆虫|ミツバチ|クジラ|渡り鳥|カラス|菌根菌|アポトーシス|老化)/.test(s)) return "생명·생태";
+
+  // Urban / planning / architecture
+  if (/(都市|再開発|建物|道路|空間|インフラ|設計|公園|コミュニティ|まちづくり)/.test(s)) return "도시·공간";
+
+  // Culture / language / communication
+  if (/(言語|言葉|比喩|隠喩|メタファー|修辞|表現|コミュニケーション|対話|議論)/.test(s)) return "언어·소통";
+
+  // Ethics / labor / policy / society (catch-all for humanities & social issues)
+  if (/(倫理|道徳|正義|責任|規範|制度|政策|法律|罰則|管理|マネジメント|外来種|侵略的|保護|排除|労働|職業|搾取)/.test(s)) return "사회·윤리";
+
+  return "논설·설명문(인문/사회)";
+}
+
+function formatWordEntry(data) {
+  // IMPORTANT:
+  // - Outer renderer already prints section titles/layout ("예문 (2문장)", "해설 (한국어)").
+  // - This function MUST return title-less pure content only (no duplicate headings).
+  return `${data.word} (${data.kana}) · ${data.meaningKo}
+
+1) ${data.ex1Ko}
+2) ${data.ex2Ko}
+
+주제별 빈도: ${data.topicFrequency}`;
+}
+
+async function translateSentenceKo(jpSentence) {
+  const jp = String(jpSentence || "").trim();
+  if (!jp) return "";
+  const url = getTranslateApiEndpoint();
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: jp, locale: "ko" }),
+  }).catch(() => null);
+  if (!resp || !resp.ok) return "";
+  const j = await resp.json().catch(() => null);
+  const html = String(j?.html || "").trim();
+  const ko = stripTags(html);
+  return ko || "";
+}
+
+function generateTwoJpExamples(term) {
+  const arr = generateNaturalExamples(term).map((s) => String(s || "").trim()).filter(Boolean);
+  const a = arr[0] || "";
+  const b = arr[1] || (a ? `${a}` : "");
+  // ensure non-empty, final punctuation
+  const fin = (s) => {
+    const x = String(s || "").trim();
+    if (!x) return "";
+    return x.endsWith("。") || x.endsWith("！") || x.endsWith("？") || x.endsWith("!") || x.endsWith("?") ? x : `${x}。`;
+  };
+  return [fin(a), fin(b)];
+}
+
+async function ensureQuestionEntryComplete(q) {
+  // Only for Mock2 quiz. Term must exist (otherwise caller should exclude).
+  const term = String(q?.term || "").trim();
+  if (!term) return q;
+
+  let ex1Jp = String(q.ex1Jp || "").trim();
+  let ex2Jp = String(q.ex2Jp || "").trim();
+  if (!ex1Jp || !ex2Jp) {
+    const [a, b] = generateTwoJpExamples(term);
+    ex1Jp = ex1Jp || a;
+    ex2Jp = ex2Jp || b;
+  }
+
+  let ex1Ko = String(q.ex1Ko || "").trim();
+  let ex2Ko = String(q.ex2Ko || "").trim();
+  if (!ex1Ko) ex1Ko = await translateSentenceKo(ex1Jp);
+  if (!ex2Ko) ex2Ko = await translateSentenceKo(ex2Jp);
+
+  const topicFrequency = inferTopicFrequency({ term, meaningKo: q.meaningKo, ex1Jp, ex2Jp });
+
+  return {
+    ...q,
+    ex1Jp,
+    ex2Jp,
+    ex1Ko: ex1Ko || "(번역 실패)",
+    ex2Ko: ex2Ko || "(번역 실패)",
+    topicFrequency,
+  };
 }
 
 function generateKoExplanation(term, meaningKo, reading, ex1Ko, ex2Ko) {
@@ -2086,6 +2768,10 @@ function isVocabQuizPage() {
 
 function isResultPage() {
   return Boolean(document.querySelector("#resultApp"));
+}
+
+function isExamPage() {
+  return Boolean(document.querySelector("#quizForm"));
 }
 
 function getReadingResults() {
@@ -2675,7 +3361,302 @@ function setGradedThisSession(mockId, v) {
 function getMockPassages(mockId) {
   if (String(mockId) === "1") return EXAM1.passages;
   if (String(mockId) === "2") return EXAM2.passages;
+  if (String(mockId) === "3") return EXAM3.passages;
   return [];
+}
+
+function hasAuthoredVocab(mockId) {
+  const passages = getMockPassages(mockId);
+  return passages.some((p) => Array.isArray(p?.vocab) && p.vocab.length > 0);
+}
+
+function autoVocabCacheKey(mockId) {
+  return `nihongo:autoVocab:mock${String(mockId)}:v3`;
+}
+
+function loadAutoVocab(mockId) {
+  const key = autoVocabCacheKey(mockId);
+  const v = readJson(key, []);
+  return Array.isArray(v) ? v : [];
+}
+
+function saveAutoVocab(mockId, vocab) {
+  const key = autoVocabCacheKey(mockId);
+  writeJson(key, Array.isArray(vocab) ? vocab : []);
+}
+
+function autoVocabPassageCacheKey(mockId, passageId) {
+  return `nihongo:autoVocab:mock${String(mockId)}:passage:${String(passageId)}:v3`;
+}
+
+function loadAutoVocabForPassage(mockId, passageId) {
+  const key = autoVocabPassageCacheKey(mockId, passageId);
+  const v = readJson(key, []);
+  return Array.isArray(v) ? v : [];
+}
+
+function saveAutoVocabForPassage(mockId, passageId, vocab) {
+  const key = autoVocabPassageCacheKey(mockId, passageId);
+  writeJson(key, Array.isArray(vocab) ? vocab : []);
+}
+
+function getVocabApiEndpoint() {
+  // Use the same base resolution as report/translate.
+  const reportUrl = getReportApiEndpoint();
+  try {
+    const u = new URL(reportUrl, window.location.origin);
+    u.pathname = u.pathname.replace(/\/api\/report$/i, "/api/vocab");
+    return u.toString();
+  } catch {
+    return "http://127.0.0.1:8787/api/vocab";
+  }
+}
+
+const __autoVocabInflight = new Map(); // mockId -> Promise<Array<...>>
+
+let __exam1VocabIndex = null;
+function getExam1VocabIndex() {
+  if (__exam1VocabIndex) return __exam1VocabIndex;
+  /** @type {Map<string, { term: string, meaningKo: string, reading?: string }>} */
+  const m = new Map();
+  try {
+    (EXAM1?.passages || []).forEach((p) => {
+      (p?.vocab || []).forEach((v) => {
+        const term = String(v?.term || "").trim();
+        const meaningKo = String(v?.meaningKo || "").trim();
+        const reading = String(v?.reading || "").trim();
+        if (!term) return;
+        if (!m.has(term)) m.set(term, { term, meaningKo, reading });
+      });
+    });
+  } catch {
+    // ignore
+  }
+  __exam1VocabIndex = m;
+  return m;
+}
+
+function extractLocalVocabFromText(text, { limit = 12 } = {}) {
+  const src = String(text || "");
+  if (!src.trim()) return [];
+
+  // Candidate patterns (fast heuristics, no Gemini):
+  // - Kanji compounds (2~6)
+  // - Common EJU key-suffix forms (〜化/〜性/〜的 etc)
+  // - Katakana terms (3+)
+  const cand = new Map();
+  const push = (t, w = 1) => {
+    const term = String(t || "").trim();
+    if (!term) return;
+    cand.set(term, (cand.get(term) || 0) + w);
+  };
+
+  const kanjiComp = src.match(/[一-龯]{2,6}/g) || [];
+  kanjiComp.forEach((t) => push(t, Math.min(3, t.length)));
+
+  const kanjiTail = src.match(/[一-龯]{1,5}(?:する|化|性|的|力|論|観|率|性|性|法|量|値)/g) || [];
+  kanjiTail.forEach((t) => push(t, 3));
+
+  const kata = src.match(/[ァ-ヶー・]{3,}/g) || [];
+  kata.forEach((t) => push(t, 2));
+
+  // Filters requested by user
+  const stopSuffix = /(主義|イズム)$/;
+  const hardStop = new Set([
+    // 너무 일반적/범용 조합(지문마다 반복되어 '정답 키워드'로 가치 낮음)
+    "場合",
+    "一方",
+    "以上",
+    "以下",
+    "今回",
+    "結果",
+    "問題",
+    "必要",
+    "重要",
+    "社会",
+    "現代",
+  ]);
+
+  const scored = Array.from(cand.entries())
+    .map(([term, score]) => ({ term, score }))
+    .filter((x) => x.term.length >= 2)
+    .filter((x) => !stopSuffix.test(x.term))
+    .filter((x) => !hardStop.has(x.term))
+    // must appear in text (avoid weird tokens)
+    .filter((x) => src.includes(x.term))
+    .sort((a, b) => b.score - a.score || b.term.length - a.term.length);
+
+  const out = [];
+  for (let i = 0; i < scored.length && out.length < limit; i += 1) out.push(scored[i].term);
+  return out;
+}
+
+function buildLocalKoGlossHtml({ mockId, passage }) {
+  const p = passage;
+  const id = String(mockId);
+  const text = stripHtml(p?.jpHtml || "");
+  if (!text) return "<p class=\"muted\">(지문 없음)</p>";
+
+  const dict = getExam1VocabIndex();
+  const sentences = String(text)
+    .replace(/\s+/g, " ")
+    .split(/(?<=[。！？!?])\s*/g)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const topTerms = extractLocalVocabFromText(text, { limit: 18 });
+  const topGloss = topTerms
+    .map((t) => {
+      const hit = dict.get(t);
+      const meaning = String(hit?.meaningKo || "").trim();
+      return meaning ? `<li><b class="jp">${escapeHtml(t)}</b> — ${escapeHtml(meaning)}</li>` : null;
+    })
+    .filter(Boolean)
+    .join("");
+
+  const body = sentences
+    .slice(0, 40)
+    .map((jp) => {
+      const localTerms = extractLocalVocabFromText(jp, { limit: 6 });
+      const gloss = localTerms
+        .map((t) => {
+          const hit = dict.get(t);
+          const meaning = String(hit?.meaningKo || "").trim();
+          return meaning ? `${t}: ${meaning}` : null;
+        })
+        .filter(Boolean);
+      const koLine = gloss.length
+        ? `<div class="muted">핵심어: ${escapeHtml(gloss.join(" · "))}</div>`
+        : `<div class="muted">핵심어: (추출 중)</div>`;
+      return `<p class="jp">${escapeHtml(jp)}</p>${koLine}`;
+    })
+    .join("");
+
+  const head = `
+    <div class="hint muted">
+      한국어 “직역 번역”이 아니라, 로컬에서 즉시 만든 <b>학습용 해석(핵심어 풀이)</b>입니다.
+      (Mock ${escapeHtml(id)} · ${escapeHtml(p?.label || "")})
+    </div>
+  `;
+
+  const vocabBox = topGloss
+    ? `<div class="card"><div class="card__k">지문 핵심 단어(뜻 있는 것만)</div><ul class="vMini">${topGloss}</ul></div>`
+    : "";
+
+  return `${head}${vocabBox}${body}`;
+}
+
+function termMeaningCacheKey(term) {
+  return `nihongo:termMeaningKo:v1:${String(term || "").trim()}`;
+}
+
+function stripTags(html) {
+  return String(html || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function translateTermMeaningKo(term) {
+  const t = String(term || "").trim();
+  if (!t) return "";
+  const key = termMeaningCacheKey(t);
+  const cached = localStorage.getItem(key);
+  if (cached) return cached;
+
+  // Reuse /api/translate which already falls back when Gemini is quota-limited.
+  const url = getTranslateApiEndpoint();
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: t, locale: "ko" }),
+  });
+  if (!resp.ok) return "";
+  const j = await resp.json().catch(() => null);
+  const html = String(j?.html || "").trim();
+  const ko = stripTags(html);
+  if (!ko) return "";
+  const out = ko.length > 60 ? `${ko.slice(0, 60)}…` : ko;
+  try {
+    localStorage.setItem(key, out);
+  } catch {
+    // ignore
+  }
+  return out;
+}
+
+async function ensureAutoVocab(mockId, { countPerPassage = 12, minTotal = 150 } = {}) {
+  const id = String(mockId);
+  // Only auto-generate when a mock is present but vocab wasn't prefilled.
+  const passages = getMockPassages(id);
+  if (!passages.length) return [];
+
+  const existing = loadAutoVocab(id);
+  if (existing.length >= minTotal) return existing;
+
+  if (__autoVocabInflight.has(id)) return __autoVocabInflight.get(id);
+
+  const p = (async () => {
+    /** @type {Array<{ term: string, meaningKo: string, reading?: string, tag?: string, sample?: string }>} */
+    const all = [];
+    const dict = getExam1VocabIndex();
+
+    for (let pIdx = 0; pIdx < passages.length; pIdx += 1) {
+      const passage = passages[pIdx];
+      if (!passage?.id) continue;
+      const text = stripHtml(passage.jpHtml || "");
+      if (!text) continue;
+
+      // If this passage already has vocab, skip it (keep authored list).
+      const authored = Array.isArray(passage.vocab) ? passage.vocab : [];
+      if (authored.length) continue;
+
+      // If we already cached this passage vocab, reuse it.
+      const cachedPassage = loadAutoVocabForPassage(id, passage.id);
+      if (cachedPassage.length) {
+        cachedPassage.forEach((x) => all.push(x));
+        continue;
+      }
+
+      const terms = extractLocalVocabFromText(text, { limit: countPerPassage });
+      /** @type {Array<{ term: string, meaningKo: string, reading?: string, tag?: string, sample?: string }>} */
+      const per = terms.map((term) => {
+        const hit = dict.get(term);
+        const meaningKo = String(hit?.meaningKo || "").trim();
+        const reading = normalizeReading(String(hit?.reading || "") || autoReadingFromTerm(term));
+        return {
+          term,
+          meaningKo,
+          reading,
+          tag: passage.label || `지문 ${pIdx + 1}`,
+          sample: pickSampleSentence(text, term),
+        };
+      });
+
+      if (per.length) {
+        saveAutoVocabForPassage(id, passage.id, per);
+        per.forEach((x) => all.push(x));
+      }
+    }
+
+    // de-dup by term, keep first
+    const seen = new Set();
+    const dedup = all.filter((v) => {
+      if (seen.has(v.term)) return false;
+      seen.add(v.term);
+      return true;
+    });
+
+    if (dedup.length) saveAutoVocab(id, dedup);
+    return dedup.length ? dedup : existing;
+  })()
+    .finally(() => {
+      __autoVocabInflight.delete(id);
+    });
+
+  __autoVocabInflight.set(id, p);
+  return p;
 }
 
 function buildVocabForMock(mockId) {
@@ -2691,16 +3672,53 @@ function buildVocabForMock(mockId) {
       const meaningKo = String(v.meaningKo || "").trim();
       const readingRaw = String(v.reading || "").trim();
       if (!term) return;
-      const reading = normalizeReading(readingRaw || autoReadingFromTerm(term));
+      // IMPORTANT: When vocab is authored (e.g. tangosi2), do not rewrite/normalize content.
+      // Only fall back to auto reading when reading is missing.
+      const reading = readingRaw || autoReadingFromTerm(term);
+      const ex1Jp = String(v.ex1Jp || "").trim();
+      const ex1Ko = String(v.ex1Ko || "").trim();
+      const ex2Jp = String(v.ex2Jp || "").trim();
+      const ex2Ko = String(v.ex2Ko || "").trim();
+
+      // Mock2: source of truth is tangosi2 for WORDS.
+      // Examples/translations may be missing; those are filled at render time (translations/examples only).
+      if (String(mockId) === "2" && !(term && readingRaw && meaningKo)) return;
+      // Mock3: source of truth is siken3 vocab (must include 2 JP examples + 2 KO translations).
+      if (String(mockId) === "3" && !(term && readingRaw && meaningKo && ex1Jp && ex2Jp && ex1Ko && ex2Ko)) return;
       out.push({
         term,
         meaningKo,
         reading,
-        tag: p.label || `지문 ${pIdx + 1}`,
+        tag: String(v.tag || "").trim() || p.label || `지문 ${pIdx + 1}`,
         sample: pickSampleSentence(text, term),
+        ex1Jp,
+        ex1Ko,
+        ex2Jp,
+        ex2Ko,
       });
     });
   });
+
+  // auto-generated vocab (cached in localStorage), used when passage.vocab is empty (e.g., Mock 2 import)
+  if (String(mockId) !== "2" && String(mockId) !== "3") {
+    const auto = loadAutoVocab(mockId);
+    auto.forEach((v) => {
+      const term = String(v?.term || "").trim();
+      const meaningKo = String(v?.meaningKo || "").trim();
+      if (!term || !meaningKo) return;
+      out.push({
+        term,
+        meaningKo,
+        reading: normalizeReading(String(v?.reading || "") || autoReadingFromTerm(term)),
+        tag: String(v?.tag || "").trim() || "자동",
+        sample: String(v?.sample || "").trim(),
+        ex1Jp: String(v?.ex1Jp || "").trim(),
+        ex1Ko: String(v?.ex1Ko || "").trim(),
+        ex2Jp: String(v?.ex2Jp || "").trim(),
+        ex2Ko: String(v?.ex2Ko || "").trim(),
+      });
+    });
+  }
 
   // de-dup by term, keep first
   const seen = new Set();
@@ -2842,6 +3860,27 @@ function renderVocabPage() {
   }
 
   const vocab = buildVocabForMock(mockId);
+  // Mock2: if auto vocab cache is partial (e.g., only a few terms), keep generating until we reach a useful size.
+  if (passages.length && String(mockId) === "2" && !hasAuthoredVocab(mockId) && vocab.length < 150) {
+    if (hint) hint.textContent = `단어장을 자동 생성 중입니다… (${vocab.length}개 → 150개 이상 목표)`;
+    // Fire-and-forget; re-render when done.
+    window.__autoVocabKick__ = window.__autoVocabKick__ || {};
+    const k = String(mockId);
+    const last = Number(window.__autoVocabKick__[k] || 0);
+    const now = Date.now();
+    // throttle to avoid render loops/freezes
+    if (now - last > 4000) {
+      window.__autoVocabKick__[k] = now;
+      ensureAutoVocab(mockId)
+      .then(() => {
+        // re-render if still on the same page
+        if (isVocabPage()) renderVocabPage();
+      })
+      .catch(() => {
+        // ignore (quota/offline etc)
+      });
+    }
+  }
   const state = loadVocabState(mockId);
   ensureJlptState(state);
 
@@ -2997,6 +4036,16 @@ function generateQuizSet(vocab, count = 15) {
       readingAnswerIndex: readingChoices.indexOf(v.reading),
       meaningChoices,
       meaningAnswerIndex: meaningChoices.indexOf(v.meaningKo),
+      ex1Jp: String(v.ex1Jp || "").trim(),
+      ex1Ko: String(v.ex1Ko || "").trim(),
+      ex2Jp: String(v.ex2Jp || "").trim(),
+      ex2Ko: String(v.ex2Ko || "").trim(),
+      topicFrequency: inferTopicFrequency({
+        term: String(v.term || "").trim(),
+        meaningKo: String(v.meaningKo || "").trim(),
+        ex1Jp: String(v.ex1Jp || "").trim(),
+        ex2Jp: String(v.ex2Jp || "").trim(),
+      }),
     };
   });
 }
@@ -3080,35 +4129,50 @@ function renderQuizSet(mockId, vocab, state) {
       mBox?.appendChild(label);
     });
 
-    // show examples before grading; KO explanation only after grading
-    const used = new Set(state.jlpt.set.usedExamples || []);
-    let [ex1, ex2] = generateNaturalExamplePairs(q.term, q.meaningKo);
-    if (used.has(ex1.jp)) {
-      const alt = generateNaturalExamplePairs(q.term, q.meaningKo);
-      ex1 = alt.find((x) => !used.has(x.jp)) || ex1;
-    }
-    used.add(ex1.jp);
-    if (used.has(ex2.jp)) {
-      const alt = generateNaturalExamplePairs(q.term, q.meaningKo);
-      ex2 = alt.find((x) => !used.has(x.jp)) || ex2;
-    }
-    used.add(ex2.jp);
-    state.jlpt.set.usedExamples = Array.from(used);
-    // store per-question examples so re-render keeps stable
-    q.examples = { ex1, ex2 };
-
-    if (extraEx) extraEx.innerHTML = `<div>${escapeHtml(ex1.jp)}</div><div>${escapeHtml(ex2.jp)}</div>`;
-    if (extraKo) {
-      extraKo.textContent = generateKoExplanation(q.term, q.meaningKo, q.reading, ex1.ko, ex2.ko);
-      // 요구사항: 해설은 "채점 버튼을 눌렀을 때만" 표시
-      extraKo.hidden = !hasGradedThisSession(mockId);
+    // Mock1/Mock2/Mock3: fixed output format (when local example data exists)
+    if (String(mockId) === "2" || String(mockId) === "3" || (String(mockId) === "1" && (q.ex1Jp || q.ex2Jp || q.ex1Ko || q.ex2Ko))) {
+      const ex1Jp = String(q.ex1Jp || "").trim();
+      const ex2Jp = String(q.ex2Jp || "").trim();
+      if (extraEx) extraEx.innerHTML = `<div>${escapeHtml(ex1Jp)}</div><div>${escapeHtml(ex2Jp)}</div>`;
+      if (extraKo) {
+        extraKo.textContent = formatWordEntry({
+          ex1Jp,
+          ex2Jp,
+          word: String(q.term || "").trim(),
+          kana: String(q.reading || "").trim(),
+          meaningKo: String(q.meaningKo || "").trim(),
+          ex1Ko: String(q.ex1Ko || "").trim(),
+          ex2Ko: String(q.ex2Ko || "").trim(),
+          topicFrequency: String(q.topicFrequency || "").trim() || inferTopicFrequency({
+            term: String(q.term || "").trim(),
+            meaningKo: String(q.meaningKo || "").trim(),
+            ex1Jp,
+            ex2Jp,
+          }),
+        });
+        extraKo.hidden = !hasGradedThisSession(mockId);
+      }
+    } else {
+      if (extraEx) {
+        extraEx.innerHTML = "";
+        const box = extraEx.closest("div");
+        if (box) box.hidden = true;
+      }
+      if (extraKo) {
+        extraKo.textContent = buildEjuExplanationForWord({
+          term: q.term,
+          reading: q.reading,
+          meaningKo: q.meaningKo,
+        });
+        extraKo.hidden = !hasGradedThisSession(mockId);
+      }
     }
 
     form.appendChild(el);
   });
 }
 
-function renderVocabQuizPage() {
+async function renderVocabQuizPage() {
   const mockId = parseMockIdFromUrl();
   const passages = getMockPassages(mockId);
   const title = document.querySelector("#vocabQuizTitle");
@@ -3121,15 +4185,95 @@ function renderVocabQuizPage() {
   const back = document.querySelector("#btnBackToVocab");
   if (back) back.setAttribute("href", `./vocab.html?mock=${encodeURIComponent(mockId)}`);
 
+  // Import authored quiz vocab/examples for Mock1 (tansi1) if available.
+  if (String(mockId) === "1" && !window.__tansi1Imported__) {
+    window.__tansi1Imported__ = true;
+    const meta = document.querySelector("#setMeta");
+    const form = document.querySelector("#setForm");
+    if (meta) meta.textContent = "—";
+    if (form) form.innerHTML = `<div class="hint muted">단어시험 데이터(tansi1) 임포트 중…</div>`;
+    ensureTansi1Imported()
+      .then(() => {
+        if (isVocabQuizPage()) renderVocabQuizPage();
+      })
+      .catch(() => {
+        if (isVocabQuizPage()) renderVocabQuizPage();
+      });
+    return;
+  }
+
+  // Import authored quiz vocab/examples (tangosi2) if available.
+  if (String(mockId) === "2" && !window.__tangosi2Imported__) {
+    window.__tangosi2Imported__ = true;
+    const meta = document.querySelector("#setMeta");
+    const form = document.querySelector("#setForm");
+    if (meta) meta.textContent = "—";
+    if (form) form.innerHTML = `<div class="hint muted">단어시험 데이터(예문/읽기/뜻) 임포트 중…</div>`;
+    ensureTangosi2Imported()
+      .then(() => {
+        try {
+          ensureTangosi2AppliedToQuizState(mockId);
+        } catch {
+          // ignore
+        }
+        if (isVocabQuizPage()) renderVocabQuizPage();
+      })
+      .catch(() => {
+        if (isVocabQuizPage()) renderVocabQuizPage();
+      });
+    return;
+  }
+
   const vocab = buildVocabForMock(mockId);
   const state = loadVocabState(mockId);
   ensureJlptState(state);
+
+  // Mock2: no fallback generation. If tangosi2 isn't loaded or doesn't provide enough items, stop.
+  if (String(mockId) === "2" && vocab.length < 15) {
+    const meta = document.querySelector("#setMeta");
+    const form = document.querySelector("#setForm");
+    if (meta) meta.textContent = "—";
+    if (form) form.innerHTML = `<div class="hint muted">단어시험 데이터(tangosi2)에서 15개 이상을 찾지 못했습니다. (파일에 없는 항목은 출력하지 않습니다.)</div>`;
+    return;
+  }
+
+  // Mock3: local-only. If siken3 vocab isn't loaded or doesn't provide enough items, stop.
+  if (String(mockId) === "3" && vocab.length < 15) {
+    const meta = document.querySelector("#setMeta");
+    const form = document.querySelector("#setForm");
+    if (meta) meta.textContent = "—";
+    if (form) form.innerHTML = `<div class="hint muted">단어시험 데이터(siken3)에서 15개 이상을 찾지 못했습니다. (로컬 파일에 없는 항목은 생성하지 않고 제외합니다.)</div>`;
+    return;
+  }
+
+  // Mock2: filter out any cached questions not present in tangosi2 vocab.
+  if (String(mockId) === "2" && state?.jlpt?.set?.questions?.length) {
+    const termSet = new Set(vocab.map((v) => String(v.term || "").trim()).filter(Boolean));
+    state.jlpt.set.questions = state.jlpt.set.questions.filter((q) => termSet.has(String(q?.term || "").trim()));
+    if (state.jlpt.set.questions.length < 15) {
+      state.jlpt.set.questions = [];
+      state.jlpt.set.graded = false;
+      state.jlpt.set.usedExamples = [];
+    }
+    saveVocabState(mockId, state);
+  }
 
   if (!passages.length || !vocab.length) {
     const meta = document.querySelector("#setMeta");
     const form = document.querySelector("#setForm");
     if (meta) meta.textContent = "—";
-    if (form) form.innerHTML = `<div class="hint muted">아직 준비 중인 모의고사입니다.</div>`;
+    if (form) form.innerHTML = `<div class="hint muted">${passages.length ? "단어장을 자동 생성 중입니다… (처음 1회만)" : "아직 준비 중인 모의고사입니다."}</div>`;
+
+    // Mock2/Mock3: never auto-generate vocab (source of truth = local files).
+    if (passages.length && String(mockId) !== "2" && String(mockId) !== "3") {
+      ensureAutoVocab(mockId)
+        .then(() => {
+          if (isVocabQuizPage()) renderVocabQuizPage();
+        })
+        .catch(() => {
+          // ignore
+        });
+    }
     return;
   }
 
@@ -3141,6 +4285,18 @@ function renderVocabQuizPage() {
       state.jlpt.set.ts = Date.now();
       saveVocabState(mockId, state);
     }
+  }
+
+  // Mock2: ensure final output has no blanks and follows fixed formatter.
+  if (String(mockId) === "2" && state.jlpt.set.questions.length) {
+    const nextQs = [];
+    for (let i = 0; i < state.jlpt.set.questions.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      const filled = await ensureQuestionEntryComplete(state.jlpt.set.questions[i]);
+      nextQs.push(filled);
+    }
+    state.jlpt.set.questions = nextQs;
+    saveVocabState(mockId, state);
   }
 
   renderQuizSet(mockId, vocab, state);
@@ -3231,7 +4387,7 @@ function escapeHtml(s) {
 }
 
 function currentPassage() {
-  return EXAM.passages[currentPassageIdx];
+  return (EXAM.passages || [])[currentPassageIdx];
 }
 
 function isHomePage() {
@@ -3245,7 +4401,9 @@ function getPassageIndexFromUrl() {
   if (!Number.isFinite(i)) return 0;
   const mockId = url.searchParams.get("mock") || "1";
   const exam = getExamByMockId(mockId);
-  return Math.min(Math.max(0, Math.floor(i)), exam.passages.length - 1);
+  const max = (exam?.passages?.length || 0) - 1;
+  if (max < 0) return 0;
+  return Math.min(Math.max(0, Math.floor(i)), max);
 }
 
 function navigateToPassage(i) {
@@ -3258,7 +4416,30 @@ function navigateToPassage(i) {
   } catch {
     // ignore
   }
-  window.location.href = url.toString();
+  // Avoid full page reload so header timer stays visible.
+  try {
+    window.history.pushState({}, "", url.toString());
+  } catch {
+    // fallback
+    window.location.href = url.toString();
+    return;
+  }
+  currentPassageIdx = idx;
+  try {
+    renderHeader();
+  } catch {
+    // ignore
+  }
+  try {
+    renderPassage();
+  } catch {
+    // ignore
+  }
+  try {
+    startExamTimer40Min();
+  } catch {
+    // ignore
+  }
 }
 
 function isReviewMode() {
@@ -3493,6 +4674,15 @@ function wireHome() {
         showToast(`모의고사 ${mock}는 준비 중입니다.`);
         return;
       }
+      // Start confirm (must work for all mocks, including mock=2).
+      const ok = window.confirm("시험을 시작하시겠습니까?");
+      if (!ok) return;
+      try {
+        const now = Date.now();
+        sessionStorage.setItem(examStartKey(String(mock)), String(now));
+      } catch {
+        // ignore
+      }
       window.location.href = `./exam.html?mock=${encodeURIComponent(String(mock))}&i=0`;
     });
   });
@@ -3607,6 +4797,30 @@ function wireHome() {
 
 function renderPassage() {
   const p = currentPassage();
+  if (!p) {
+    // When data isn't loaded (e.g., mock=3 file blocked by static server), show a clear message.
+    try {
+      const title = document.querySelector("#passageTitle");
+      if (title) title.textContent = "데이터를 불러오지 못했어요";
+      const passage = document.querySelector("#passageContent");
+      if (passage) {
+        passage.innerHTML = `
+          <div class="hint muted">
+            모의고사 데이터를 아직 로드하지 못했습니다.<br />
+            - 현재 URL: <span class="jp">${escapeHtml(window.location.href)}</span><br />
+            - 권장: <span class="jp">http://127.0.0.1:8787/</span> 로 접속해서 실행하세요. (정적 서버는 점(.)파일을 막는 경우가 있어요)
+          </div>
+        `;
+      }
+      const form = document.querySelector("#quizForm");
+      if (form) form.innerHTML = "";
+      const tBlock = document.querySelector("#translationBlock");
+      if (tBlock) tBlock.hidden = true;
+    } catch {
+      // ignore
+    }
+    return;
+  }
   $("#passageKicker").textContent = p.label;
   $("#passageTitle").textContent = p.title;
   $("#passageContent").innerHTML = p.jpHtml;
@@ -3617,10 +4831,11 @@ function renderPassage() {
     tBlock.hidden = false;
     const mockId = parseMockIdFromUrl();
     const cached = localStorage.getItem(translateCacheKey(mockId, p.id));
-    $("#passageTranslation").innerHTML = cached || p.translationKoHtml || "<p>(해석 없음)</p>";
+    $("#passageTranslation").innerHTML =
+      cached || p.translationKoHtml || '<p class="muted">한국어 번역을 불러오는 중…</p>';
     if (row) row.classList.add("isSplit");
 
-    // Auto-generate translation for mock 2 if missing (Gemini, cached in localStorage).
+    // Fetch translation for mock2 if missing (server falls back when Gemini is quota-limited).
     if ((!cached || !cached.trim()) && (!p.translationKoHtml || p.translationKoHtml.includes("(해석 없음)"))) {
       ensureKoreanTranslation({ mockId, passage: p })
         .then((html) => {
@@ -3741,6 +4956,122 @@ function stopTimer() {
   timerId = null;
 }
 
+function stopExamTimer() {
+  if (examTimerId) window.clearInterval(examTimerId);
+  examTimerId = null;
+}
+
+function examStartKey(mockId) {
+  return `nihongo:examStartMs:mock${String(mockId)}`;
+}
+
+function ensureExamStartedWithConfirm() {
+  if (!isExamPage()) return true;
+  if (isReviewMode()) return true;
+  const mockId = parseMockIdFromUrl();
+
+  // If already started in this tab/session, don't ask again.
+  const startedMsRaw = sessionStorage.getItem(examStartKey(mockId));
+  const startedMs = startedMsRaw ? Number(startedMsRaw) : 0;
+  if (Number.isFinite(startedMs) && startedMs > 0) return true;
+
+  const ok = window.confirm("시험을 시작하시겠습니까?");
+  if (!ok) {
+    // Go back to main if cancelled.
+    window.location.href = "./index.html";
+    return false;
+  }
+  const now = Date.now();
+  sessionStorage.setItem(examStartKey(mockId), String(now));
+  return true;
+}
+
+function startExamTimer40Min() {
+  if (!isExamPage()) return;
+  stopExamTimer();
+
+  // Ensure timer element exists even if HTML is cached/older.
+  let el = document.querySelector("#examTimer");
+  if (!(el instanceof HTMLElement)) {
+    try {
+      const topRight = document.querySelector("header.top .top__right");
+      if (topRight) {
+        const pill = document.createElement("div");
+        pill.className = "pill";
+        pill.id = "examTimer";
+        pill.hidden = true;
+        pill.setAttribute("aria-label", "시험 타이머");
+        pill.textContent = "40:00";
+        topRight.insertBefore(pill, topRight.firstChild);
+        el = pill;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  if (!(el instanceof HTMLElement)) return;
+
+  const mockId = parseMockIdFromUrl();
+  const startedMsRaw = sessionStorage.getItem(examStartKey(mockId));
+  const startedMs = startedMsRaw ? Number(startedMsRaw) : 0;
+  if (!Number.isFinite(startedMs) || startedMs <= 0) {
+    el.hidden = true;
+    return;
+  }
+
+  const totalMs = 40 * 60_000;
+  const tick = () => {
+    const elapsed = Date.now() - startedMs;
+    const left = Math.max(0, totalMs - elapsed);
+    const mm = String(Math.floor(left / 60_000)).padStart(2, "0");
+    const ss = String(Math.floor((left % 60_000) / 1000)).padStart(2, "0");
+    el.textContent = `${mm}:${ss}`;
+    el.hidden = false;
+    if (left <= 0) stopExamTimer();
+  };
+  tick();
+  examTimerId = window.setInterval(tick, 1000);
+}
+
+function wireExamMainCancelConfirm() {
+  if (!isExamPage()) return;
+  // Prefer explicit id, but fall back to the header "메인" link.
+  const a =
+    document.querySelector("#btnGoMain") ||
+    document.querySelector('header.top a[href="./index.html"]') ||
+    document.querySelector('header.top a[href$="index.html"]');
+  if (!(a instanceof HTMLAnchorElement)) return;
+  if (a.dataset.wired === "1") return;
+  a.dataset.wired = "1";
+
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    const ok = window.confirm("시험을 취소하시겠습니까?");
+    if (!ok) return;
+
+    try {
+      // Clear reading progress/drafts for this mock
+      localStorage.removeItem(readingResultsKey());
+      localStorage.removeItem(readingDraftKey());
+    } catch {
+      // ignore
+    }
+    try {
+      const mockId = parseMockIdFromUrl();
+      sessionStorage.removeItem(examStartKey(mockId));
+    } catch {
+      // ignore
+    }
+    try {
+      stopExamTimer();
+    } catch {
+      // ignore
+    }
+    // Go to main
+    window.location.href = "./index.html";
+  });
+}
+
 function startTimerIfEnabled() {
   if (isHomePage()) return;
   stopTimer();
@@ -3786,6 +5117,13 @@ function gradeAndRender() {
   // allow re-select + re-grade
   clearFeedback();
   graded = true;
+  // Start background prefetch so next passages are already translated.
+  try {
+    const mid = parseMockIdFromUrl();
+    if (String(mid) === "2") prefetchKoreanTranslationsForMock(mid).catch(() => {});
+  } catch {
+    // ignore
+  }
 
   const p = currentPassage();
   const answers = getAnswers();
@@ -4297,9 +5635,26 @@ function renderAll() {
   // Select active exam set early (affects header, navigation, totals).
   try {
     const mid = parseMockIdFromUrl();
+    // Mock3: load data synchronously so pages render immediately (no "import wait").
+    if (String(mid) === "3") {
+      tryImportSiken3Sync();
+    }
     EXAM = getExamByMockId(mid);
   } catch {
     EXAM = EXAM1;
+  }
+
+  // Exam start gating (confirm/cancel) + per-mock 40min timer.
+  // Must run early so the user sees the prompt before interacting.
+  if (isExamPage()) {
+    const started = ensureExamStartedWithConfirm();
+    if (!started) return;
+  }
+  // Recompute index after EXAM is ready (important for mock=3 sync import).
+  try {
+    currentPassageIdx = getPassageIndexFromUrl();
+  } catch {
+    currentPassageIdx = 0;
   }
   try {
     document.body.dataset.review = isReviewMode() ? "1" : "0";
@@ -4307,6 +5662,10 @@ function renderAll() {
     // ignore
   }
   renderHeader();
+  if (isExamPage()) {
+    wireExamMainCancelConfirm();
+    startExamTimer40Min();
+  }
   if (isHomePage()) {
     renderHome();
     return;

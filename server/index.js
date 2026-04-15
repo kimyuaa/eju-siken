@@ -1,4 +1,4 @@
-import "dotenv/config";
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import crypto from "crypto";
@@ -10,6 +10,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 /** Repo root (parent of /server) — static HTML/CSS/JS live here */
 const publicDir = path.resolve(__dirname, "..");
+
+// Always load /server/.env regardless of process cwd.
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 app.set("trust proxy", 1);
@@ -66,22 +69,156 @@ app.get("/api/health", (_req, res) => {
  */
 app.post("/api/translate", async (req, res) => {
   try {
-    const apiKey = mustGetEnv("GEMINI_API_KEY");
-    const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
     const locale = (req.body?.locale || "ko").toString();
     const text = String(req.body?.text || "").trim();
+    if (!text) return res.status(400).json({ error: "Missing text" });
+    if (locale !== "ko") return res.status(400).json({ error: "Only ko is supported" });
+
+    const fallbackMyMemory = async () => {
+      const email = String(process.env.MYMEMORY_EMAIL || "").trim();
+
+      const translateChunk = async (chunk) => {
+        const url = new URL("https://api.mymemory.translated.net/get");
+        url.searchParams.set("q", chunk);
+        url.searchParams.set("langpair", "ja|ko");
+        if (email) url.searchParams.set("de", email);
+
+        const r = await fetch(url, { method: "GET" });
+        if (!r.ok) {
+          const t = await r.text().catch(() => "");
+          throw new Error(`MyMemory error: ${r.status} ${r.statusText} ${t}`);
+        }
+        const j = await r.json().catch(() => null);
+        const tr = String(j?.responseData?.translatedText || "").trim();
+        if (!tr) throw new Error("MyMemory empty translation");
+        if (tr.includes("QUERY LENGTH LIMIT EXCEEDED")) throw new Error("MyMemory query length exceeded");
+        return tr;
+      };
+
+      // MyMemory hard-limits q length (~500 chars). Split input into <=450-char chunks.
+      const maxLen = 450;
+      const src = text.replace(/\r\n/g, "\n").trim();
+      const parts = src.split(/\n{2,}/g).map((p) => p.trim()).filter(Boolean);
+      /** @type {string[]} */
+      const chunks = [];
+      parts.forEach((p) => {
+        if (p.length <= maxLen) {
+          chunks.push(p);
+          return;
+        }
+        // Further split long paragraphs by sentence punctuation.
+        const sents = p.split(/(?<=[。！？!?])\s*/g).map((x) => x.trim()).filter(Boolean);
+        let buf = "";
+        sents.forEach((s) => {
+          const next = buf ? `${buf} ${s}` : s;
+          if (next.length <= maxLen) {
+            buf = next;
+            return;
+          }
+          if (buf) chunks.push(buf);
+          // If a single sentence is still too long, hard-slice.
+          if (s.length > maxLen) {
+            for (let i = 0; i < s.length; i += maxLen) chunks.push(s.slice(i, i + maxLen));
+            buf = "";
+          } else {
+            buf = s;
+          }
+        });
+        if (buf) chunks.push(buf);
+      });
+
+      /** @type {string[]} */
+      const out = [];
+      for (let i = 0; i < chunks.length; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        const tr = await translateChunk(chunks[i]);
+        out.push(tr);
+        // small delay to be polite to free endpoint
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, 120));
+      }
+
+      const html = out.map((p) => `<p>${p}</p>`).join("");
+      return html || "<p>(번역 실패)</p>";
+    };
+
+    const tryGemini = async () => {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey || isPlaceholderEnv(apiKey)) throw new Error("Missing env: GEMINI_API_KEY");
+      const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const prompt = [
+        "너는 EJU 일본어 독해 학습용 번역가다.",
+        "아래 일본어 지문을 한국어로 자연스럽게 번역하되, 과장 없이 학습용으로 명료하게 번역한다.",
+        "- 출력은 HTML만. 각 문단은 <p>...</p>로 감싼다.",
+        "- 원문 문단 수를 최대한 유지한다.",
+        "- 고유명사/전문용어는 과하게 의역하지 말고 괄호로 보조 설명 가능.",
+        "",
+        "[원문]",
+        text,
+      ].join("\n");
+
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2 },
+      });
+      const out = String(result?.response?.text?.() || "").trim();
+      if (!out) throw new Error("Empty translation");
+      return out.includes("<p") ? out : `<p>${out.replaceAll("\n", "<br>")}</p>`;
+    };
+
+    // Prefer Gemini, but fall back to MyMemory when quota/rate-limited.
+    try {
+      const html = await tryGemini();
+      return res.json({ html, provider: "gemini" });
+    } catch (e) {
+      const msg = String(e?.message || e || "");
+      if (msg.includes("[429 Too Many Requests]") || msg.includes("retryDelay")) {
+        const html = await fallbackMyMemory();
+        return res.json({ html, provider: "mymemory" });
+      }
+      // If Gemini key missing or other transient failure, also fall back.
+      const html = await fallbackMyMemory();
+      return res.json({ html, provider: "mymemory" });
+    }
+  } catch (e) {
+    const msg = String(e?.message || e || "");
+    res.status(500).json({ error: msg });
+  }
+});
+
+/**
+ * POST /api/vocab
+ * Body: { text: string, count?: number }
+ * Returns: { vocab: Array<{ term: string, meaningKo: string }> }
+ */
+app.post("/api/vocab", async (req, res) => {
+  try {
+    const apiKey = mustGetEnv("GEMINI_API_KEY");
+    const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
+    const text = String(req.body?.text || "").trim();
+    const countIn = Number(req.body?.count);
+    const count = Number.isFinite(countIn) ? Math.max(8, Math.min(18, Math.floor(countIn))) : 14;
     if (!text) return res.status(400).json({ error: "Missing text" });
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
     const prompt = [
-      "너는 EJU 일본어 독해 학습용 번역가다.",
-      "아래 일본어 지문을 한국어로 자연스럽게 번역하되, 과장 없이 학습용으로 명료하게 번역한다.",
-      "- 출력은 HTML만. 각 문단은 <p>...</p>로 감싼다.",
-      "- 원문 문단 수를 최대한 유지한다.",
-      "- 고유명사/전문용어는 과하게 의역하지 말고 괄호로 보조 설명 가능.",
+      "너는 EJU 일본어 독해 단어장을 만드는 조교다.",
+      "아래 일본어 지문에서 학습 가치가 높은 단어/표현(한자어, 핵심 개념어)을 뽑아 단어장 JSON을 만든다.",
       "",
-      "[원문]",
+      "규칙:",
+      `- 개수: ${count}개.`,
+      "- 표기는 원문 그대로(일본어). 조사/활용형은 기본형으로 정리(예: 〜する, 〜的 등).",
+      "- 너무 쉬운 단어(例えば, しかし 등) 제외.",
+      "- 지문에 실제로 등장하는 단어/표현만 뽑아라(없는 단어를 만들지 마라).",
+      "- 이념/사상 이름(예: 〜主義, 〜イズム)처럼 '정답 키워드'가 되기 어려운 단어는 제외.",
+      "- EJU 독해에서 정답을 고를 때 '근거 문장'을 찾는 데 중요한 핵심어/핵심 표현을 우선.",
+      "- 의미는 한국어로 짧고 정확하게.",
+      "- 출력은 반드시 JSON만. 형식: [{\"term\":\"...\",\"meaningKo\":\"...\"}, ...]",
+      "",
+      "[지문]",
       text,
     ].join("\n");
 
@@ -89,16 +226,30 @@ app.post("/api/translate", async (req, res) => {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.2 },
     });
-    const out = String(result?.response?.text?.() || "").trim();
-    if (!out) return res.status(500).json({ error: "Empty translation" });
-
-    // Very small safety: ensure <p> exists, otherwise wrap whole block.
-    const html = out.includes("<p") ? out : `<p>${out.replaceAll("\n", "<br>")}</p>`;
-    res.json({ html });
+    const raw = String(result?.response?.text?.() || "").trim();
+    const jsonText = raw.replace(/^```json\\s*/i, "").replace(/^```\\s*/i, "").replace(/```\\s*$/i, "").trim();
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch {
+      return res.status(500).json({ error: "Bad vocab JSON from model" });
+    }
+    const arr = Array.isArray(parsed) ? parsed : [];
+    const stopRe = /(主義|イズム)$/;
+    const vocab = arr
+      .filter((x) => x && typeof x === "object")
+      .map((x) => ({ term: String(x.term || "").trim(), meaningKo: String(x.meaningKo || "").trim() }))
+      .filter((x) => x.term && x.meaningKo)
+      // prevent hallucinations: must appear in source text
+      .filter((x) => text.includes(x.term))
+      // heuristic stoplist requested by user
+      .filter((x) => !stopRe.test(x.term))
+      .slice(0, count);
+    res.json({ vocab });
   } catch (e) {
     const msg = String(e?.message || e || "");
     if (msg.includes("[429 Too Many Requests]") || msg.includes("retryDelay")) {
-      const m = msg.match(/retryDelay\":\"(\d+)s\"/);
+      const m = msg.match(/retryDelay\\\":\\\"(\\d+)s\\\"/);
       const retryAfterSec = m ? Number(m[1]) : undefined;
       if (Number.isFinite(retryAfterSec)) res.set("Retry-After", String(retryAfterSec));
       return res.status(429).json({ error: msg, retryAfterSec });
@@ -407,6 +558,8 @@ app.use(
   express.static(publicDir, {
     extensions: ["html"],
     index: ["index.html"],
+    // Allow serving dotfiles used as local import artifacts (e.g. .tmp_tangosi2_vocab.json).
+    dotfiles: "allow",
     maxAge: process.env.NODE_ENV === "production" ? "1h" : 0,
   }),
 );
