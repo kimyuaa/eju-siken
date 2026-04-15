@@ -535,6 +535,15 @@ app.post("/api/report", async (req, res) => {
       let lastErr;
       for (let attempt = 0; attempt <= backoffs.length; attempt += 1) {
         try {
+          // eslint-disable-next-line no-console
+          console.log("[/api/report] Gemini call", {
+            modelName,
+            phase,
+            attempt: attempt + 1,
+            promptChars: String(promptText || "").length,
+            bodyBytes: Buffer.byteLength(JSON.stringify(req.body || {}), "utf8"),
+            timeoutMs: geminiTimeoutMs,
+          });
           // eslint-disable-next-line no-await-in-loop
           const out = await withTimeout(model.generateContent(promptText), geminiTimeoutMs, "gemini generateContent timeout");
           const text = out.response.text();
@@ -707,10 +716,15 @@ app.post("/api/report", async (req, res) => {
   } catch (e) {
     const msg = String(e?.message || e || "");
     try {
+      // Log full failure details (request body + stack) for diagnosis.
+      const bodyText = JSON.stringify(req.body || {});
       // eslint-disable-next-line no-console
-      console.error("[/api/report] 500", {
-        model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
-        error: msg.slice(0, 800),
+      console.error("POST /api/report failed", {
+        modelName: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+        message: String(e?.message || e || ""),
+        stack: String(e?.stack || ""),
+        bodyBytes: Buffer.byteLength(bodyText, "utf8"),
+        body: bodyText.length > 6000 ? `${bodyText.slice(0, 6000)}…(truncated)` : bodyText,
       });
     } catch {
       // ignore
@@ -720,9 +734,9 @@ app.post("/api/report", async (req, res) => {
       const m = msg.match(/retryDelay\":\"(\d+)s\"/);
       const retryAfterSec = m ? Number(m[1]) : undefined;
       if (Number.isFinite(retryAfterSec)) res.set("Retry-After", String(retryAfterSec));
-      return res.status(429).json({ error: msg, retryAfterSec });
+      return res.status(429).json({ ok: false, error: msg, retryAfterSec });
     }
-    res.status(500).json({ error: msg });
+    res.status(500).json({ ok: false, error: msg || "unknown error" });
   }
 });
 
