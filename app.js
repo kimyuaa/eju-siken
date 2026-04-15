@@ -5444,6 +5444,8 @@ function renderResultPage() {
   const examTotalQ = totalQuestionCount();
   const scoreDenom = examTotalQ > 0 ? examTotalQ : totalQ;
   const scorePct = scoreDenom ? Math.round((correctQ / scoreDenom) * 100) : 0;
+  const solvedQ = rows.reduce((s, p) => s + (Array.isArray(p.qResults) ? p.qResults.filter((qr) => typeof qr?.picked === "number").length : 0), 0);
+  const solvedPct = scoreDenom ? Math.round((solvedQ / scoreDenom) * 100) : 0;
 
   const makeStat = (k, v, d, pct2) => `
     <div class="stat">
@@ -5458,9 +5460,9 @@ function renderResultPage() {
     makeStat("정답률", `${scorePct}%`, "최종", scorePct),
     makeStat(
       "완료 세트",
-      `${rows.length} / ${EXAM.passages.length}`,
-      "채점 완료 기준",
-      Math.round((rows.length / EXAM.passages.length) * 100),
+      `${solvedQ} / ${scoreDenom}`,
+      "문항 풀이 기준",
+      solvedPct,
     ),
     makeStat("최근 기록", rows[rows.length - 1] ? `${rows[rows.length - 1].label}` : "—", rows[rows.length - 1] ? formatShortDate(rows[rows.length - 1].ts) : "—", 100),
   ].join("");
