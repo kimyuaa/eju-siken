@@ -560,10 +560,14 @@ app.post("/api/report", async (req, res) => {
     function tryParseJson(text) {
       const t = String(text || "").trim();
       if (!t) return null;
-      // Common model behavior: wrap JSON in code fences or add brief preface.
+      // Common model behavior:
+      // - wrap JSON in ```json fences
+      // - prepend short prose
+      // - append trailing notes
+      // We aggressively strip fences and then extract the first top-level object.
       const unfenced = t
-        .replace(/^```(?:json)?\s*/i, "")
-        .replace(/\s*```$/i, "")
+        .replace(/```json\s*/gi, "")
+        .replace(/```\s*/g, "")
         .trim();
       try {
         return JSON.parse(unfenced);
@@ -624,6 +628,8 @@ app.post("/api/report", async (req, res) => {
                 temperature: 0.2,
                 // Bound output to reduce latency/timeouts.
                 maxOutputTokens: 4096,
+                // Force JSON-only output (reduces codefences / prose).
+                responseMimeType: "application/json",
               },
             }),
             geminiTimeoutMs,
@@ -660,6 +666,9 @@ app.post("/api/report", async (req, res) => {
     const prompt = [
       "너는 일본어 독해(EJU) 학습 코치이다.",
       "사용자 기록(JSON)과 (가능하면) 실제 웹 검색 결과를 바탕으로, 한국어 리포트를 작성한다.",
+      "입력 데이터는 '시험 세션' 기반이다. context.wrongQuestions(오답 문항 배열)가 핵심이며, 오답 문항에는 지문/문제/보기/정답/사용자 선택이 포함된다.",
+      "리포트는 반드시 wrongQuestions의 내용(지문 포함)을 근거로 ‘왜 틀렸는지/어떻게 검증해야 하는지’를 구체화한다. (지문 범위/표현 강도/근거 위치/함정 패턴)",
+      "wrongQuestions가 비어 있으면(전부 정답/미응답) 그 사실을 전제로 리포트를 작성하되, 체크리스트/학습플랜은 일반적 훈련 플랜으로 제시한다.",
       "",
       "제약:",
       "- 말투는 정형화한다: ‘~이다/~한다/~로 본다/~로 처리한다’",
