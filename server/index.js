@@ -377,6 +377,20 @@ app.post("/api/vocab", async (req, res) => {
  */
 app.post("/api/report", async (req, res) => {
   try {
+    // Debug: log request summary (helps confirm request reaches server).
+    try {
+      // eslint-disable-next-line no-console
+      console.log("[/api/report] request", {
+        method: req.method,
+        url: req.originalUrl,
+        bodyBytes: Buffer.byteLength(JSON.stringify(req.body || {}), "utf8"),
+        seed: req.body?.seed,
+        locale: req.body?.locale,
+      });
+    } catch {
+      // ignore
+    }
+
     const cacheKey = crypto.createHash("sha256").update(JSON.stringify(req.body || {})).digest("hex");
     const cached = getCachedReport(cacheKey);
     if (cached) return res.json(cached);
@@ -692,6 +706,15 @@ app.post("/api/report", async (req, res) => {
     res.json(payload);
   } catch (e) {
     const msg = String(e?.message || e || "");
+    try {
+      // eslint-disable-next-line no-console
+      console.error("[/api/report] 500", {
+        model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+        error: msg.slice(0, 800),
+      });
+    } catch {
+      // ignore
+    }
     // If Gemini rate-limits, propagate as 429 with retry hint.
     if (msg.includes("[429 Too Many Requests]") || msg.includes("retryDelay")) {
       const m = msg.match(/retryDelay\":\"(\d+)s\"/);

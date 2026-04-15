@@ -5621,6 +5621,13 @@ function renderResultPage() {
       running = true;
       if (btnAi) btnAi.disabled = true;
       if (btnLocal) btnLocal.disabled = true;
+      // Debug: confirm click handler ran (Network should follow unless cache hit / early error).
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[AI report] click", { href: window.location.href });
+      } catch {
+        // ignore
+      }
       if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
       const mockId = parseMockIdFromUrl();
       // 429 backoff: if we're in cooldown, don't call server again yet.
@@ -5641,6 +5648,12 @@ function renderResultPage() {
       const cacheKey = aiReportCacheKey(mockId, seed, updatedAt);
       const cachedHtml = localStorage.getItem(cacheKey);
       if (cachedHtml && String(cachedHtml).trim()) {
+        try {
+          // eslint-disable-next-line no-console
+          console.log("[AI report] cache hit", { mockId, seed, updatedAt, cacheKey });
+        } catch {
+          // ignore
+        }
         reportOut.innerHTML = String(cachedHtml);
         if (statusEl) statusEl.textContent = "캐시된 리포트 표시 완료.";
         stopProg();
@@ -5653,12 +5666,32 @@ function renderResultPage() {
       }
 
       const ctx = buildCtx();
+      let url = "";
+      try {
+        url = String(getReportApiEndpoint() || "");
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("[AI report] getReportApiEndpoint failed", e);
+        throw e;
+      }
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[AI report] fetch start", {
+          url,
+          mockId,
+          seed,
+          updatedAt,
+          bodyBytes: JSON.stringify({ context: ctx, seed, locale: "ko" }).length,
+        });
+      } catch {
+        // ignore
+      }
       // Network timeout so the UI doesn't hang indefinitely on PaaS.
       const ac = new AbortController();
       // Keep >= server Gemini timeout so client doesn't abort first.
       const t = window.setTimeout(() => ac.abort(), 95_000);
       const fetchOnce = async () =>
-        fetch(getReportApiEndpoint(), {
+        fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ context: ctx, seed, locale: "ko" }),
@@ -5679,6 +5712,12 @@ function renderResultPage() {
         }
       } finally {
         window.clearTimeout(t);
+      }
+      try {
+        // eslint-disable-next-line no-console
+        console.log("[AI report] fetch done", { ok: resp?.ok, status: resp?.status, url });
+      } catch {
+        // ignore
       }
       if (!resp.ok) {
         let extra = "";
@@ -5820,7 +5859,13 @@ function renderResultPage() {
       }
       throw new Error("bad ai payload");
     } catch (e) {
-      const msg = String(e?.name === "AbortError" ? "요청 시간이 초과되었습니다(25초). 잠시 후 재시도하세요." : (e?.message || e));
+      try {
+        // eslint-disable-next-line no-console
+        console.error("[AI report] failed", e);
+      } catch {
+        // ignore
+      }
+      const msg = String(e?.name === "AbortError" ? "요청 시간이 초과되었습니다(95초). 잠시 후 재시도하세요." : (e?.message || e));
       if (statusEl) statusEl.textContent = `제미나이 실패: ${msg} (로컬 버튼으로 대체 가능)`;
     } finally {
       stopProg();
