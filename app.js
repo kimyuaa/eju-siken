@@ -4425,6 +4425,15 @@ function navigateToPassage(i) {
     return;
   }
   currentPassageIdx = idx;
+  // Reset graded UI when moving passages (old behavior was full reload).
+  if (!isReviewMode()) {
+    graded = false;
+    try {
+      clearFeedback();
+    } catch {
+      // ignore
+    }
+  }
   try {
     renderHeader();
   } catch {
@@ -5219,23 +5228,15 @@ function gradeAndRender() {
 
 function nextPassage() {
   if (currentPassageIdx >= EXAM.passages.length - 1) return;
-  // review mode: no auto-grade
-  if (!isReviewMode()) {
-    saveReadingDraft(currentPassage().id, getAnswers());
-    // auto-grade + persist before moving on
-    if (!graded) gradeAndRender();
-  }
+  // Save draft only; do NOT auto-grade when navigating.
+  if (!isReviewMode()) saveReadingDraft(currentPassage().id, getAnswers());
   navigateToPassage(currentPassageIdx + 1);
 }
 
 function prevPassage() {
   if (currentPassageIdx <= 0) return;
-  // review mode: no auto-grade
-  if (!isReviewMode()) {
-    saveReadingDraft(currentPassage().id, getAnswers());
-    // auto-grade + persist before moving on
-    if (!graded) gradeAndRender();
-  }
+  // Save draft only; do NOT auto-grade when navigating.
+  if (!isReviewMode()) saveReadingDraft(currentPassage().id, getAnswers());
   navigateToPassage(currentPassageIdx - 1);
 }
 
