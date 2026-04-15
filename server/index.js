@@ -382,8 +382,8 @@ app.post("/api/report", async (req, res) => {
     if (cached) return res.json(cached);
 
     const apiKey = mustGetEnv("GEMINI_API_KEY");
-    // v1beta model naming can differ; default to a commonly available alias.
-    const modelName = process.env.GEMINI_MODEL || "gemini-flash-latest";
+    // Use a pinned model name by default (avoid unstable aliases like gemini-flash-latest).
+    const modelName = process.env.GEMINI_MODEL || "gemini-2.5-flash";
     const locale = (req.body?.locale || "ko").toString();
     const context = req.body?.context || {};
 
@@ -495,13 +495,48 @@ app.post("/api/report", async (req, res) => {
       }
     }
 
-    async function generateJson(promptText) {
+    function logGeminiFailure({ phase, attempt, promptText, err }) {
+      try {
+        const msg = String(err?.message || err || "");
+        const stack = String(err?.stack || "");
+        // eslint-disable-next-line no-console
+        console.error("[/api/report] Gemini failure", {
+          modelName,
+          phase,
+          attempt,
+          promptChars: String(promptText || "").length,
+          bodyBytes: Buffer.byteLength(JSON.stringify(req.body || {}), "utf8"),
+          errorMessage: msg.slice(0, 500),
+          errorStack: stack ? stack.split("\n").slice(0, 6).join("\n") : undefined,
+        });
+      } catch {
+        // ignore
+      }
+    }
+
+    async function generateJson(promptText, phase = "main") {
       const geminiTimeoutMsRaw = Number(process.env.GEMINI_TIMEOUT_MS || "");
       const geminiTimeoutMs = Number.isFinite(geminiTimeoutMsRaw) ? Math.max(60_000, Math.min(90_000, geminiTimeoutMsRaw)) : 90_000;
-      const out = await withTimeout(model.generateContent(promptText), geminiTimeoutMs, "gemini generateContent timeout");
-      const text = out.response.text();
-      const json = tryParseJson(text);
-      return { json, raw: text };
+      const backoffs = [800, 2000]; // 1~2 retries for transient 5xx
+      let lastErr;
+      for (let attempt = 0; attempt <= backoffs.length; attempt += 1) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          const out = await withTimeout(model.generateContent(promptText), geminiTimeoutMs, "gemini generateContent timeout");
+          const text = out.response.text();
+          const json = tryParseJson(text);
+          return { json, raw: text };
+        } catch (e) {
+          lastErr = e;
+          logGeminiFailure({ phase, attempt: attempt + 1, promptText, err: e });
+          const msg = String(e?.message || e || "");
+          const is5xx = msg.includes("[500") || msg.includes("[502") || msg.includes("[503") || msg.includes("[504");
+          if (!is5xx || attempt >= backoffs.length) break;
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => setTimeout(r, backoffs[attempt]));
+        }
+      }
+      throw lastErr || new Error("Gemini generateContent failed");
     }
 
     const prompt = [
@@ -577,7 +612,7 @@ app.post("/api/report", async (req, res) => {
       `- locale=${locale}`
     ].join("\n");
 
-    const first = await generateJson(prompt);
+    const first = await generateJson(prompt, "main");
     let parsed = first.json;
     let lastRaw = first.raw || "";
 
@@ -599,7 +634,7 @@ app.post("/api/report", async (req, res) => {
           "이전 출력(참고용, 그대로 재사용 금지):",
           JSON.stringify(parsed).slice(0, 8000)
         ].join("\n");
-        const second = await generateJson(repairPrompt);
+        const second = await generateJson(repairPrompt, "repair");
         if (second.raw) lastRaw = second.raw;
         if (second.json) parsed = second.json;
       }
