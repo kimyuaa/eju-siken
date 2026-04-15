@@ -529,16 +529,16 @@ app.post("/api/report", async (req, res) => {
         if (!isNonEmptyString(it?.how)) errors.push("checklistItems.how missing");
       }
 
-      if (contentPlan.length < 3) errors.push("contentPlan < 3");
+      if (contentPlan.length < 2) errors.push("contentPlan < 2");
       for (const p of contentPlan) {
         const links = Array.isArray(p?.links) ? p.links : [];
         const queries = Array.isArray(p?.queries) ? p.queries : [];
         if (!isNonEmptyString(p?.title)) errors.push("contentPlan.title missing");
-        if (links.length < 7) errors.push("contentPlan.links < 7");
-        if (queries.length < 6) errors.push("contentPlan.queries < 6");
+        if (links.length < 4) errors.push("contentPlan.links < 4");
+        if (queries.length < 4) errors.push("contentPlan.queries < 4");
       }
 
-      if (studyItems.length < 4) errors.push("studyPlan2 < 4");
+      if (studyItems.length < 3) errors.push("studyPlan2 < 3");
       for (const it of studyItems) {
         const tips = Array.isArray(it?.tips) ? it.tips : [];
         const examples = Array.isArray(it?.examples) ? it.examples : [];
@@ -619,7 +619,7 @@ app.post("/api/report", async (req, res) => {
               generationConfig: {
                 temperature: 0.2,
                 // Bound output to reduce latency/timeouts.
-                maxOutputTokens: 2048,
+                maxOutputTokens: 4096,
               },
             }),
             geminiTimeoutMs,
@@ -661,6 +661,7 @@ app.post("/api/report", async (req, res) => {
       "- 말투는 정형화한다: ‘~이다/~한다/~로 본다/~로 처리한다’",
       "- 과장 금지. 불확실하면 ‘가능성이 높다/낮다’로 표현한다.",
       "- 아래 출력 포맷(JSON)만 출력한다. 다른 텍스트 금지.",
+      "- 절대 ``` 코드펜스/마크다운/설명문을 붙이지 않는다. 반드시 JSON 단독 출력이다.",
       "- HTML을 직접 만들지 않는다. (프론트 템플릿에서 렌더링한다)",
       "",
       "출력 JSON 스키마:",
