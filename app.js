@@ -4073,7 +4073,7 @@ function renderQuizSet(mockId, vocab, state) {
     el.innerHTML = `
       <div class="setQ__top">
         <div class="setQ__term jp">Q${idx + 1}. ${escapeHtml(q.term)}</div>
-        <div class="setQ__meta">${escapeHtml(q.tag)}</div>
+        <div class="setQ__meta" hidden></div>
       </div>
       <div class="setQ__grid">
         <div class="setPart" data-part="reading">
@@ -4089,6 +4089,7 @@ function renderQuizSet(mockId, vocab, state) {
       </div>
       <div class="setExtra" data-extra>
         <div>
+          <div class="setExtra__tag muted" data-extra-tag hidden></div>
           <div class="setExtra__k">예문 (2문장)</div>
           <div class="setExtra__ex jp" data-extra-ex></div>
         </div>
@@ -4103,6 +4104,13 @@ function renderQuizSet(mockId, vocab, state) {
     const mBox = el.querySelector('[data-choices="meaning"]');
     const extraEx = el.querySelector("[data-extra-ex]");
     const extraKo = el.querySelector("[data-extra-ko]");
+    const extraTag = el.querySelector("[data-extra-tag]");
+
+    if (extraTag instanceof HTMLElement) {
+      const t = String(q.tag || "").trim();
+      extraTag.textContent = t;
+      extraTag.hidden = !t;
+    }
 
     q.readingChoices.forEach((c, cIdx) => {
       const label = document.createElement("label");
@@ -4448,6 +4456,16 @@ function navigateToPassage(i) {
     renderQuestions();
   } catch {
     // ignore
+  }
+  // Always scroll to top on passage navigation (read passage first).
+  try {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  } catch {
+    try {
+      window.scrollTo(0, 0);
+    } catch {
+      // ignore
+    }
   }
   try {
     applyReviewIfAvailable();

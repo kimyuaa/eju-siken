@@ -460,6 +460,11 @@ mark.hlTerm {
   font-size: 13px;
   white-space: pre-wrap;
 }
+
+.setExtra__tag {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
 .jlptCard {
   border: 1px solid var(--line);
   border-radius: var(--radius);
