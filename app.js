@@ -5611,11 +5611,21 @@ function renderResultPage() {
       if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
       const seed = nextReportSeed();
       const ctx = buildCtx();
-      const resp = await fetch(getReportApiEndpoint(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ context: ctx, seed, locale: "ko" }),
-      });
+      // Network timeout so the UI doesn't hang indefinitely on PaaS.
+      const ac = new AbortController();
+      const t = window.setTimeout(() => ac.abort(), 25_000);
+      let resp;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        resp = await fetch(getReportApiEndpoint(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ context: ctx, seed, locale: "ko" }),
+          signal: ac.signal,
+        });
+      } finally {
+        window.clearTimeout(t);
+      }
       if (!resp.ok) {
         let extra = "";
         let retryAfterSec;
@@ -5746,7 +5756,8 @@ function renderResultPage() {
       }
       throw new Error("bad ai payload");
     } catch (e) {
-      if (statusEl) statusEl.textContent = `제미나이 실패: ${String(e?.message || e)} (로컬 버튼으로 대체 가능)`;
+      const msg = String(e?.name === "AbortError" ? "요청 시간이 초과되었습니다(25초). 잠시 후 재시도하세요." : (e?.message || e));
+      if (statusEl) statusEl.textContent = `제미나이 실패: ${msg} (로컬 버튼으로 대체 가능)`;
     } finally {
       stopProg();
       if (loading) loading.hidden = true;
