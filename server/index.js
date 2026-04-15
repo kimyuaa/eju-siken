@@ -538,8 +538,8 @@ app.post("/api/report", async (req, res) => {
         const links = Array.isArray(p?.links) ? p.links : [];
         const queries = Array.isArray(p?.queries) ? p.queries : [];
         if (!isNonEmptyString(p?.title)) errors.push("contentPlan.title missing");
-        if (links.length < 4) errors.push("contentPlan.links < 4");
-        if (queries.length < 4) errors.push("contentPlan.queries < 4");
+        if (links.length < 3) errors.push("contentPlan.links < 3");
+        if (queries.length < 3) errors.push("contentPlan.queries < 3");
       }
 
       if (studyItems.length < 3) errors.push("studyPlan2 < 3");
@@ -627,7 +627,7 @@ app.post("/api/report", async (req, res) => {
               generationConfig: {
                 temperature: 0.2,
                 // Bound output to reduce latency/timeouts.
-                maxOutputTokens: 4096,
+                maxOutputTokens: 2048,
                 // Force JSON-only output (reduces codefences / prose).
                 responseMimeType: "application/json",
               },
@@ -675,6 +675,7 @@ app.post("/api/report", async (req, res) => {
       "- 과장 금지. 불확실하면 ‘가능성이 높다/낮다’로 표현한다.",
       "- 아래 출력 포맷(JSON)만 출력한다. 다른 텍스트 금지.",
       "- 절대 ``` 코드펜스/마크다운/설명문을 붙이지 않는다. 반드시 JSON 단독 출력이다.",
+      "- 출력은 짧게 쓴다. 전체 JSON은 7,000자 이내로 제한한다. (길어지면 항목을 줄여서라도 반드시 끝까지 닫힌 유효 JSON을 만든다)",
       "- HTML을 직접 만들지 않는다. (프론트 템플릿에서 렌더링한다)",
       "",
       "출력 JSON 스키마:",
@@ -728,8 +729,8 @@ app.post("/api/report", async (req, res) => {
       "- report.checklistItems는 6~8개.",
       "- checklistItems는 ‘질문형 체크리스트(무엇을 확인했는가?)’ + ‘왜 필요한가(일본식 정답 사고: 근거/범위/표현 강도/중립성)’ + ‘어떻게 확인하는가(본문에서 찾을 위치/표지어/판정 규칙)’ 3요소로 쓴다.",
       "- report.contentPlan은 2~3개 플랜.",
-      "- 각 플랜 links는 4~6개, queries는 4~6개로 제한한다.",
-      "- report.studyPlan2는 3~5개 항목.",
+      "- 각 플랜 links는 3~4개, queries는 3~4개로 제한한다.",
+      "- report.studyPlan2는 3~4개 항목.",
       "- studyPlan2는 ‘단계 나열’로 끝내지 않는다. 각 항목은 (해석 습관/정답 근거 찾기/보기 제거 기준/문장 구조 잡기/표현 강도 판단/일본식 글 전개)처럼 스킬 중심으로 길게 설명한다.",
       "- 각 항목은 tips(최소 2개)와 examples(최소 2개)를 포함한다.",
       "- links 배열은 contentPlan의 links와 중복 가능하나, why를 포함한다.",
@@ -740,6 +741,23 @@ app.post("/api/report", async (req, res) => {
     const first = await generateJson(prompt, "main");
     let parsed = first.json;
     let lastRaw = first.raw || "";
+
+    // If parsing failed (often due to truncation), retry once with a shorter, strict JSON-only prompt.
+    if (!parsed) {
+      const shortPrompt = [
+        prompt,
+        "",
+        "추가 지시(중요):",
+        "- 이전 출력이 너무 길어서 잘렸다. 반드시 더 짧게 써라.",
+        "- 전체 JSON은 4,500자 이내로 제한한다.",
+        "- contentPlan은 2개, 각 links 3개, queries 3개로 제한한다.",
+        "- studyPlan2는 3개로 제한한다.",
+        "- 어떤 경우에도 유효한 JSON을 끝까지 닫아야 한다.",
+      ].join("\n");
+      const retry = await generateJson(shortPrompt, "short-retry");
+      if (retry.raw) lastRaw = retry.raw;
+      if (retry.json) parsed = retry.json;
+    }
 
     // Repair loop: if schema is present but plans are too short/empty, retry once with explicit fix instructions.
     if (parsed && parsed.report && typeof parsed.report === "object") {
