@@ -4721,6 +4721,13 @@ function wireHome() {
       const ok = window.confirm("시험을 시작하시겠습니까?");
       if (!ok) return;
       try {
+        // Starting a new exam run from home: clear stale progress for this mock.
+        localStorage.removeItem(readingResultsKey(String(mock)));
+        localStorage.removeItem(readingDraftKey(String(mock)));
+      } catch {
+        // ignore
+      }
+      try {
         const now = Date.now();
         sessionStorage.setItem(examStartKey(String(mock)), String(now));
       } catch {
@@ -5023,6 +5030,13 @@ function ensureExamStartedWithConfirm() {
     // Go back to main if cancelled.
     window.location.href = "./index.html";
     return false;
+  }
+  // Starting a new exam run: clear stale progress from previous attempts for this mock.
+  try {
+    localStorage.removeItem(readingResultsKey(mockId));
+    localStorage.removeItem(readingDraftKey(mockId));
+  } catch {
+    // ignore
   }
   const now = Date.now();
   sessionStorage.setItem(examStartKey(mockId), String(now));
