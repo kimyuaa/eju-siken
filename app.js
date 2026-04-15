@@ -5301,6 +5301,39 @@ function restartAllReading() {
   window.location.href = `./exam.html?mock=${encodeURIComponent(mockId)}&i=0`;
 }
 
+function persistAllDraftToResults() {
+  // Persist picked answers for all passages so result page can build analytics
+  // even when the user didn't press "중간채점" on each passage.
+  try {
+    const draft = getReadingDraft();
+    const ts = Date.now();
+    (EXAM.passages || []).forEach((p, passageIdx) => {
+      const answers = draft.byPassageId?.[String(p.id)]?.answers || {};
+      const pickedAny = Object.values(answers).some((v) => typeof v === "number");
+      if (!pickedAny) return;
+      let correct = 0;
+      const qResults = (p.questions || []).map((q, idx) => {
+        const picked = typeof answers[q.id] === "number" ? answers[q.id] : null;
+        const ok = typeof picked === "number" && picked === q.answerIndex;
+        if (ok) correct += 1;
+        return { idx: idx + 1, qId: q.id, type: questionType(q.prompt), ok, picked };
+      });
+      saveReadingResult(p.id, {
+        passageIdx,
+        label: p.label,
+        title: p.title,
+        topic: passageTopic(p),
+        ts,
+        correct,
+        total: (p.questions || []).length,
+        qResults,
+      });
+    });
+  } catch {
+    // ignore
+  }
+}
+
 /**
  * Gemini report API URL.
  * - Local: page not on port 8787 -> http://127.0.0.1:8787/api/report .
@@ -5342,11 +5375,13 @@ function finishExam() {
   const ok = window.confirm("한번 제출하시겠습니까?");
   if (!ok) return;
   if (!graded && !isReviewMode()) gradeAndRender();
+  // Ensure all picked answers are persisted for the final report.
+  persistAllDraftToResults();
   // Make report vary per run + per user
   const user = getUserLabel();
   const seed = ((Date.now() & 0xffffffff) ^ ((user.length + 17) * 2654435761)) >>> 0;
-  localStorage.setItem(reportSeedKey(), String(seed));
   const mockId = parseMockIdFromUrl();
+  localStorage.setItem(reportSeedKey(mockId), String(seed));
   window.location.href = `./result.html?mock=${encodeURIComponent(mockId)}`;
 }
 
