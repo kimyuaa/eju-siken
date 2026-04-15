@@ -4445,6 +4445,22 @@ function navigateToPassage(i) {
     // ignore
   }
   try {
+    renderQuestions();
+  } catch {
+    // ignore
+  }
+  try {
+    applyReviewIfAvailable();
+  } catch {
+    // ignore
+  }
+  try {
+    renderOverallProgress();
+    renderMarkCard();
+  } catch {
+    // ignore
+  }
+  try {
     startExamTimer40Min();
   } catch {
     // ignore
