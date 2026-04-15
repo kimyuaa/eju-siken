@@ -5439,6 +5439,12 @@ function renderResultPage() {
     fTopics,
   } = computeReadingAnalytics(r);
 
+  // Denominator should reflect full exam size (EJU style: 20 or 22),
+  // not only the number of passages that happened to be graded/persisted.
+  const examTotalQ = totalQuestionCount();
+  const scoreDenom = examTotalQ > 0 ? examTotalQ : totalQ;
+  const scorePct = scoreDenom ? Math.round((correctQ / scoreDenom) * 100) : 0;
+
   const makeStat = (k, v, d, pct2) => `
     <div class="stat">
       <div class="stat__k">${escapeHtml(k)}</div>
@@ -5448,8 +5454,8 @@ function renderResultPage() {
     </div>
   `;
   statsEl.innerHTML = [
-    makeStat("총점", `${correctQ} / ${totalQ}`, "전체 문항 기준", pct),
-    makeStat("정답률", `${pct}%`, "최종", pct),
+    makeStat("총점", `${correctQ} / ${scoreDenom}`, "전체 문항 기준", scorePct),
+    makeStat("정답률", `${scorePct}%`, "최종", scorePct),
     makeStat(
       "완료 세트",
       `${rows.length} / ${EXAM.passages.length}`,
