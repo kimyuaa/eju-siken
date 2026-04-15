@@ -44,6 +44,52 @@ function setCachedReport(key, payload) {
   reportCache.set(key, { ts: Date.now(), payload });
 }
 
+// Gemini translation cache to reduce repeated calls (key: locale + text hash).
+const translateCache = new Map(); // key -> { ts, html }
+function getCachedTranslate(key, ttlMs = 6 * 60 * 60_000) {
+  const hit = translateCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > ttlMs) {
+    translateCache.delete(key);
+    return null;
+  }
+  return hit.html || null;
+}
+function setCachedTranslate(key, html) {
+  try {
+    if (translateCache.size > 200) {
+      const firstKey = translateCache.keys().next().value;
+      if (firstKey) translateCache.delete(firstKey);
+    }
+  } catch {
+    // ignore
+  }
+  translateCache.set(key, { ts: Date.now(), html });
+}
+
+// Gemini vocab cache (key: count + text hash).
+const vocabCache = new Map(); // key -> { ts, vocab }
+function getCachedVocab(key, ttlMs = 2 * 60 * 60_000) {
+  const hit = vocabCache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.ts > ttlMs) {
+    vocabCache.delete(key);
+    return null;
+  }
+  return hit.vocab || null;
+}
+function setCachedVocab(key, vocab) {
+  try {
+    if (vocabCache.size > 120) {
+      const firstKey = vocabCache.keys().next().value;
+      if (firstKey) vocabCache.delete(firstKey);
+    }
+  } catch {
+    // ignore
+  }
+  vocabCache.set(key, { ts: Date.now(), vocab });
+}
+
 function withTimeout(promise, ms, label = "timeout") {
   const t = Number(ms);
   if (!Number.isFinite(t) || t <= 0) return promise;
@@ -111,6 +157,10 @@ app.post("/api/translate", async (req, res) => {
     const text = String(req.body?.text || "").trim();
     if (!text) return res.status(400).json({ error: "Missing text" });
     if (locale !== "ko") return res.status(400).json({ error: "Only ko is supported" });
+
+    const tKey = crypto.createHash("sha256").update(`${locale}\n${text}`).digest("hex");
+    const cachedHtml = getCachedTranslate(tKey);
+    if (cachedHtml) return res.json({ html: cachedHtml, provider: "cache" });
 
     const fallbackMyMemory = async () => {
       const email = String(process.env.MYMEMORY_EMAIL || "").trim();
@@ -209,15 +259,18 @@ app.post("/api/translate", async (req, res) => {
     // Prefer Gemini, but fall back to MyMemory when quota/rate-limited.
     try {
       const html = await tryGemini();
+      setCachedTranslate(tKey, html);
       return res.json({ html, provider: "gemini" });
     } catch (e) {
       const msg = String(e?.message || e || "");
       if (msg.includes("[429 Too Many Requests]") || msg.includes("retryDelay")) {
         const html = await fallbackMyMemory();
+        setCachedTranslate(tKey, html);
         return res.json({ html, provider: "mymemory" });
       }
       // If Gemini key missing or other transient failure, also fall back.
       const html = await fallbackMyMemory();
+      setCachedTranslate(tKey, html);
       return res.json({ html, provider: "mymemory" });
     }
   } catch (e) {
@@ -239,6 +292,10 @@ app.post("/api/vocab", async (req, res) => {
     const countIn = Number(req.body?.count);
     const count = Number.isFinite(countIn) ? Math.max(8, Math.min(18, Math.floor(countIn))) : 14;
     if (!text) return res.status(400).json({ error: "Missing text" });
+
+    const vKey = crypto.createHash("sha256").update(`count=${count}\n${text}`).digest("hex");
+    const cachedV = getCachedVocab(vKey);
+    if (cachedV) return res.json({ vocab: cachedV, provider: "cache" });
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
@@ -283,6 +340,7 @@ app.post("/api/vocab", async (req, res) => {
       // heuristic stoplist requested by user
       .filter((x) => !stopRe.test(x.term))
       .slice(0, count);
+    setCachedVocab(vKey, vocab);
     res.json({ vocab });
   } catch (e) {
     const msg = String(e?.message || e || "");

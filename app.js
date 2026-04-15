@@ -2752,6 +2752,10 @@ function aiReportCacheKey(mockId, seed, updatedAt) {
   return `nihongo:aiReportCache:mock${String(mockId)}:seed${Number.isFinite(s) ? s : 0}:u${Number.isFinite(u) ? u : 0}:v1`;
 }
 
+function aiReportCooldownKey(mockId) {
+  return `nihongo:aiReportCooldown:mock${String(mockId)}:v1`;
+}
+
 function parseVocabModeFromUrl() {
   const url = new URL(window.location.href);
   const m = url.searchParams.get("mode");
@@ -5610,6 +5614,7 @@ function renderResultPage() {
 
 
   const tryAi = async () => {
+    if (running) return; // hard guard: prevent re-entry
     if (loading) loading.hidden = false;
     const stopProg = startFakeProgress();
     try {
@@ -5618,6 +5623,13 @@ function renderResultPage() {
       if (btnLocal) btnLocal.disabled = true;
       if (statusEl) statusEl.textContent = "제미나이 분석을 시작한다…";
       const mockId = parseMockIdFromUrl();
+      // 429 backoff: if we're in cooldown, don't call server again yet.
+      const cdUntil = Number(localStorage.getItem(aiReportCooldownKey(mockId)) || 0);
+      if (Number.isFinite(cdUntil) && cdUntil > Date.now()) {
+        const leftSec = Math.max(1, Math.ceil((cdUntil - Date.now()) / 1000));
+        throw new Error(`ai cooldown. ${leftSec}초 후 재시도`);
+      }
+
       const rr = getReadingResults();
       const updatedAt = Number(rr?.updatedAt || 0);
       // Reuse the same seed for the same exam run (avoid generating a new report every click).
@@ -5645,15 +5657,26 @@ function renderResultPage() {
       const ac = new AbortController();
       // Keep >= server Gemini timeout so client doesn't abort first.
       const t = window.setTimeout(() => ac.abort(), 95_000);
-      let resp;
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        resp = await fetch(getReportApiEndpoint(), {
+      const fetchOnce = async () =>
+        fetch(getReportApiEndpoint(), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ context: ctx, seed, locale: "ko" }),
           signal: ac.signal,
         });
+
+      // 429 backoff retries (2s -> 5s -> 10s). Never immediate retry.
+      const backoffs = [2000, 5000, 10000];
+      let resp;
+      try {
+        for (let attempt = 0; attempt <= backoffs.length; attempt += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          resp = await fetchOnce();
+          if (resp && resp.status !== 429) break;
+          if (attempt >= backoffs.length) break;
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((r) => setTimeout(r, backoffs[attempt]));
+        }
       } finally {
         window.clearTimeout(t);
       }
@@ -5669,6 +5692,11 @@ function renderResultPage() {
         }
         if (resp.status === 429) {
           const wait = retryAfterSec || 20;
+          try {
+            localStorage.setItem(aiReportCooldownKey(mockId), String(Date.now() + wait * 1000));
+          } catch {
+            // ignore
+          }
           throw new Error(`ai server 429 (요청 제한). ${wait}초 후 재시도`);
         }
         throw new Error(`ai server ${resp.status}${extra}`);
