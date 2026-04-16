@@ -5231,6 +5231,11 @@ function ensureExamStartedWithConfirm() {
 
   // Create a fresh session snapshot (single source of truth for report payload).
   try {
+    const oldSid = sessionStorage.getItem(examSessionIdKey(mockId));
+    if (oldSid) {
+      localStorage.removeItem(wrongArchiveKey(oldSid));
+      localStorage.removeItem(examSessionDataKey(oldSid));
+    }
     sessionStorage.removeItem(examSessionIdKey(mockId));
   } catch {
     // ignore
@@ -5476,8 +5481,23 @@ function gradeAndRender() {
 
 function nextPassage() {
   if (currentPassageIdx >= EXAM.passages.length - 1) return;
-  // Save draft only; do NOT auto-grade when navigating.
-  if (!isReviewMode()) saveReadingDraft(currentPassage().id, getAnswers());
+  const mockId = parseMockIdFromUrl();
+  const p = currentPassage();
+  const answers = getAnswers();
+  // When navigating to the next passage, we MUST mark wrong answers and
+  // persist wrong questions + passage bodies for the AI report.
+  if (!isReviewMode()) {
+    try {
+      if (!getExamSession(mockId)) createExamSessionFromCurrentExam(mockId);
+      (p.questions || []).forEach((q) => {
+        updateExamSessionAnswer({ mockId, passage: p, question: q, userChoice: answers[q.id] });
+      });
+    } catch {
+      // ignore
+    }
+    // Persist picked answers for result analytics.
+    saveReadingDraft(p.id, answers);
+  }
   navigateToPassage(currentPassageIdx + 1);
 }
 
@@ -5512,6 +5532,22 @@ function restartAllReading() {
   localStorage.removeItem(readingResultsKey());
   localStorage.removeItem(readingDraftKey());
   const mockId = parseMockIdFromUrl();
+  // Also clear wrong-archive + exam-session so a fresh storage is created next run.
+  try {
+    const oldSid = sessionStorage.getItem(examSessionIdKey(mockId));
+    if (oldSid) {
+      localStorage.removeItem(wrongArchiveKey(oldSid));
+      localStorage.removeItem(examSessionDataKey(oldSid));
+    }
+  } catch {
+    // ignore
+  }
+  try {
+    sessionStorage.removeItem(examStartKey(mockId));
+    sessionStorage.removeItem(examSessionIdKey(mockId));
+  } catch {
+    // ignore
+  }
   window.location.href = `./exam.html?mock=${encodeURIComponent(mockId)}&i=0`;
 }
 
